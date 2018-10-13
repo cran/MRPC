@@ -19,10 +19,11 @@ DendroModuleGraph=function(Adj_directed,minModuleSize,GV) {
   dissTOM = 1-TOM
 #Call the hierarchical clustering function from fastcluster
 #This hclust that provides a much faster hierarchical clustering routine than the standard hclust function.
-  geneTree = fastcluster::hclust(as.dist(dissTOM), method = "average");
-# Plot the resulting clustering tree (dendrogram)
-  plot(geneTree, xlab="", sub="", main = "Gene clustering on TOM-based dissimilarity",
-       labels = FALSE, hang = 0.04);
+  #geneTree = fastcluster::hclust(as.dist(dissTOM), method = "average");
+  geneTree = hclust(as.dist(dissTOM), method = "average");
+  # Plot the resulting clustering tree (dendrogram)
+  #plot(geneTree, xlab="", sub="", main = "Gene clustering on TOM-based dissimilarity",
+       #labels = FALSE, hang = 0.04);
 
   minModuleSize =minModuleSize; #Need to mention minimum module size
 # Module identification using dynamic tree cut:
@@ -42,7 +43,8 @@ DendroModuleGraph=function(Adj_directed,minModuleSize,GV) {
 
 # Plot the dendrogram and colors underneath
 #par(mfrow=c(1,2))
-  plotDendroAndColors(geneTree, dynamicColors, "Dynamic Tree Cut",
+#sizeGrWindow(8,6);
+plotDendroAndColors(geneTree, dynamicColors, "Dynamic Tree Cut",
                       dendroLabels = FALSE, hang = 0.03,
                       addGuide = FALSE, guideHang = 0.05,
                       main = "Dendrogram and module colors of nodes")
@@ -81,8 +83,8 @@ DendroModuleGraph=function(Adj_directed,minModuleSize,GV) {
 
   #library(GGally) #Need for ggnet2 function
   #Plot the final graph
-  plotobj=ggnet2(net,color = Module,palette = col,node.size=5,arrow.size = 3,label=TRUE,label.size = 1,alpha = 1,
+  plotobj=ggnet2(net,color = Module,palette = col,node.size=5,arrow.size = 4,label=TRUE,label.size = 1,alpha = 1,
                  shape.legend = "Node type",edge.label.color = Module,shape = net%v%"phono",shape.palette = c("Genotype" = 17,"Phenotype" = 19),
-                 color.legend = "Modules color",legend.position = "bottom",arrow.gap = 0.010)
+                 color.legend = "Modules color",legend.position = "bottom",arrow.gap = 0.0280)
   return(list(graph=plotobj,dynamicColors=dynamicColors,GroupMods=Grouplist,GroupModsColors=Colorlist,Adjmatrixdirected=Adj_directed))
 }

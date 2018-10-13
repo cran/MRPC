@@ -2,13 +2,15 @@
 \alias{aSHD}
 
 \title{
-adjusted Structural Hamming Distance (aSHD) 
+Adjusted Structural Hamming Distance (aSHD) 
 }
+
 \description{
-The SHD, as is implemented in the R package pcalg (Kalisch et al., 2012) and bnlearn(Scutari, 2010), counts how many differences exist between two directed graphs. This distance is 1 if an edge exists in one graph but missing in the other, or if the direction of an edge is different in the two graphs. The larger this distance, the more different the two graphs are. We adjusted the SHD to reduce the penalty on the wrong direction of an edge to 0.5. For example, between two graphs V-->T1<--T2 and V-->T1-->T2, the SHD is 1 and our aSHD is 0.5.
+The SHD as implemented in the R package pcalg (Kalisch et al., 2012) and bnlearn(Scutari, 2010), counts how many differences exist between two directed graphs. This distance is 1 if an edge exists in one graph but is missing in the other, or if the direction of an edge is different between the two graphs. The larger this distance is the more different the two graphs are. We adjusted the SHD to reduce the penalty of having the wrong direction of an edge to 0.5. For example, between two graphs V --> T1 <-- T2 and V --> T1 --> T2, the SHD is 1 and the aSHD is 0.5.
 }
+
 \usage{
-aSHD(g1, g2, GV)
+aSHD(g1, g2, GV,edge.presence = 1.0, edge.direction = 0.5)
 }
 
 \arguments{
@@ -18,7 +20,13 @@ First graph object
   \item{g2}{
 Second graph object
 }
-\item{GV}{Need to specify for how many genetic variants (SNPs/indels/CNV/eQTL) in your input data for the consistence of MRPC with others inference, because only the MRPC implemented the gMR.For example, if your dataset have one genetic variants (first column), then GV=1, if 2 (1st and 2nd Column), then GV=2..and so on.
+\item{GV}{The number of genetic variants (SNPs/indels/CNV/eQTL) in the input data matrix. For example, if the data has one genetic variant, first column, then GV = 1, if 2, 1st and 2nd column, then GV = 2, and so on.
+}
+\item{edge.presence}{
+The weight for an edge being present.
+}
+  \item{edge.direction}{
+The weight for the edge direction.
 }
 }
 
@@ -29,35 +37,53 @@ Second graph object
 }
 
 \author{
-Md. Bahadur Badsha (mdbadsha@uidaho.edu)
+Md Bahadur Badsha (mdbadsha@uidaho.edu)
 }
 
 \examples{
-## True model
-n<-nrow (simu.data_M1)     #Number of row
-V<-colnames(simu.data_M1)  #Column names
+# True model
+# True graph (V1 --> T1 --> T2 --> T3)
+tarmat_s1 <- matrix(0,
+                    nrow = 4,
+                    ncol = 4)
+                    
+colnames(tarmat_s1) <- c("V1", "T1", "T2", "T3")
 
-Rcor_R=RobustCor(simu.data_M1, 0.005) #Robust correlation (Beta=0.005)
-suffStat_R= list(C = Rcor_R$RR, n = n)
+rownames(tarmat_s1) <- colnames(tarmat_s1)
 
-## Estimated graph by MRPC using gaussCItest
-MRPC.fit_1_GT <- MRPC(simu.data_M1,suffStat_R,GV=1,FDR=0.05,
-indepTest ='gaussCItest', labels= V, verbose = TRUE)
+# Create an adjacency matrix for the true graph
+tarmat_s1[1, 2] <- 1
+tarmat_s1[2, 3] <- 1
+tarmat_s1[3, 4] <- 1
 
-#Inferred graph 
+# Graph object of the true graph
+Truth <- as(tarmat_s1,
+            "graphNEL")
 
-n<-nrow (simu.data_M2)    #Number of row
-V<-colnames(simu.data_M1) #Column names
 
-Rcor_R=RobustCor(simu.data_M2, 0.005) #Robust correlation (Beta=0.005)
-suffStat_R= list(C = Rcor_R$RR, n = n)
+# Inferred graph (V1 --> T1 <-- T2 --> T3)
+tarmat_s2 <- matrix(0,
+                    nrow = 4,
+                    ncol = 4)
+                    
+colnames(tarmat_s2) <-c ("V1", "T1", "T2", "T3")
 
-## Estimated graph by MRPC using gaussCItest
-MRPC.fit_2_GT <- MRPC(simu.data_M2,suffStat_R,GV=1,FDR=0.05,
-indepTest ='gaussCItest', labels= V, verbose = TRUE)
+rownames(tarmat_s2) <- colnames(tarmat_s2)
 
-#
-Distance=aSHD(MRPC.fit_1_GT$graph,MRPC.fit_2_GT$graph,GV=1)
+# Create an adjacency matrix for the inferred graph
+tarmat_s2[1, 2] <- 1
+tarmat_s2[3, 2] <- 1
+tarmat_s2[3, 4] <- 1
+
+# Graph objects for the inferred graph
+Inferred <- as(tarmat_s2,
+               "graphNEL")
+
+Distance <- aSHD(Truth,
+                 Inferred,
+                 GV = 1,
+                 edge.presence = 1.0,
+                 edge.direction = 0.5)
 
 }
 

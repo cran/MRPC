@@ -1,5 +1,5 @@
 #This is the part 1 of MRPC to draw the undirected graph
-ModiSkeleton<-function (data,suffStat,FDR, indepTest = c("gaussCItest", "citest"), labels, p, method = c("stable",
+ModiSkeleton<-function (data,suffStat,FDR, indepTest = c("gaussCItest", "disCItest","citest"), labels, p, method = c("stable",
                                                              "original", "stable.fast"), m.max = Inf, fixedGaps = NULL,
                   fixedEdges = NULL, NAdelete = TRUE, verbose = FALSE)
 {
@@ -52,7 +52,8 @@ ModiSkeleton<-function (data,suffStat,FDR, indepTest = c("gaussCItest", "citest"
     while (!done && any(G) && ord <= m.max) {
       n.edgetests[ord1 <- ord + 1L] <- 0
       done <- TRUE
-      ind <- which(G, arr.ind = TRUE)
+      #ind <- which(G, arr.ind = TRUE)
+      ind <- which(upper.tri(G), arr.ind = TRUE)
       ind <- ind[order(ind[, 1]), ]
       remEdges <- nrow(ind)
       if (verbose)
@@ -104,6 +105,10 @@ ModiSkeleton<-function (data,suffStat,FDR, indepTest = c("gaussCItest", "citest"
               if(indepTest=="gaussCItest") #if indepTest=gaussCItest
                 {
                 pval[m]<- gaussCItest(x, y, nbrs[S], suffStat)
+              }
+              if(indepTest=="disCItest") #if indepTest=gaussCItest
+              {
+                pval[m]<- disCItest(x, y, nbrs[S], suffStat)
               }
                                    
               #End to calculate P-value using ci.test and gaussCItest
@@ -166,12 +171,16 @@ ModiSkeleton<-function (data,suffStat,FDR, indepTest = c("gaussCItest", "citest"
            # max.ord = as.integer(ord - 1), n.edgetests = n.edgetests,
            # sepset = sepset,pMax = pMax, zMin = matrix(NA, 1, 1))
 
+  new("MRPCclass",graph = Gobject,call = cl, n = integer(0),
+  max.ord = as.integer(ord - 1), n.edgetests = n.edgetests,
+  sepset = sepset,pMax = pMax, zMin = matrix(NA, 1, 1),test=m,alpha=Alpha,R=R)
+
   #return(list(obj=temp,test=m,alpha=Alpha,R=R))
   #else
   #{
-    return(list(graph = Gobject,call = cl, n = integer(0),
-                max.ord = as.integer(ord - 1), n.edgetests = n.edgetests,
-                sepset = sepset,pMax = pMax, zMin = matrix(NA, 1, 1),test=m,alpha=Alpha,R=R))
+    #return(list(graph = Gobject,call = cl, n = integer(0),
+               # max.ord = as.integer(ord - 1), n.edgetests = n.edgetests,
+               # sepset = sepset,pMax = pMax, zMin = matrix(NA, 1, 1),test=m,alpha=Alpha,R=R))
     
   #}
   }
