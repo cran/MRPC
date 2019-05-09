@@ -2,10 +2,10 @@
 \alias{ModiSkeleton}
 
 \title{
-Draw Undirected Graph using the Modified Skeleton Function
+Infer a graph skeleton (undirected graph)
 }
 \description{
-The Modiskeleton function is used to estimate the undirected graph, skeleton, using the modified skeleton function. The main difference is that the ModiSkeleton function uses alpha, significance level, as a function of the prior outcomes, reject or accept hypothesis, but the existing \link{skeleton} function used alpha as a fixed pre-assigned significance level. See details in \bold{Choice of Significance Level} below.
+This function infers a graph skeleton (i.e., an undirected graph). It is based on the function \link{skeleton} from the \code{pcalg} package. Both functions perform marginal and conditional indpenendence tests.  However, \code{ModiSkeleton} implements an online false discovery rate (FDR) control method in order to control the overall FDR, whereas \link{skeleton} controls only the type I error rate for each individual test. See details below.
 }
 \usage{
 ModiSkeleton(data, suffStat, FDR, indepTest, labels, p,
@@ -15,29 +15,27 @@ ModiSkeleton(data, suffStat, FDR, indepTest, labels, p,
 }
 
 \arguments{
-Since, this is the modification of the existing \link{skeleton} function, therefore, most of the terms and sentences are taken from \link{skeleton} (Spirtes et al., 2000). Also, most of the arguments are identical to \link{MRPC} and \link{pc}.
+Many arguments are similar to those in \link{skeleton} and \link{pc} in the \code{pcalg} package.  Several arguments here are also arguments for the function \link{MRPC}.
 
 \item{data}{
-Data matrix, where the rows are the observations and the columns are the genes. The columns are ordered from  single-nucleotide polymorphism (SNPs), indels, copy number variation (CNV), or expression quantitative trait loci (eQTL) to genes. If we consider one genetic variant, then the first column of the input matrix is the genetic variant and the remaining columns are the gene expression data and so on.
+Data matrix, where the rows are samples and the columns are features (e.g., genetic variants and phenotypes). Columns for genetic varants, if available, appear before other columns for phenotypes (e.g., gene expression).  For example, if there is one genetic variant, then the first column of the data matrix is the genetic variant and the remaining columns are the gene expression data.
 }
 
-\item{suffStat}{A \link{list} of sufficient statistics, containing all necessary elements for the conditional independence tests in the function indepTest for gaussCItest. The sufficient statistics consist of the correlation matrix of the data and the sample size.
+\item{suffStat}{A list consisting of the correlation matrix of the data and the sample size.  
 }
 
 \item{FDR}{
-Need to specify pre-assigned level.If FDR=0.05, that ensures FDR and mFDR remains below 0.05.
+Desired overall FDR level.
 }
 
-\item{indepTest}{A \link{function} for testing conditional independence. It is used to test the conditional independence of x and y given S, called as indepTest(x, y, S, suffStat). Where, x and y are variables, and S is a vector, possibly empty, of variables. suffStat is a list, see the argument above. The return value of indepTest is the p-value of the test for conditional independence. The different indepTest is used for different data types, for example, Gaussian data = gaussCItest, Discrete data = disCItest and Binary data = binCItest. See help(gaussCItest)
+\item{indepTest}{Name of the statistical test. It is used to test the independence of x and y given S, where x and y are variables and S is a vector, possibly empty, of variables. The return value of indepTest is the p-value of the test for conditional independence.  Different tests may used for different data types. For example, \code{indepTest='gaussCItest'} for Gaussian data, \code{indepTest='disCItest'} for discrete data, and \code{indepTest='binCItest'} for binary data. See additional details in help(gaussCItest).
 
-The \link{ci.test} (Marco Scutari, 2010) is also used for testing conditional independence and return value of indepTest is the p-value. If none is specified, the default test statistic is the mutual information for categorical variables, the Jonckheere-Terpstra test for ordered factors and the linear correlation for continuous variables.See help(ci.test)
-
-Remember that need to specify the which indepTest would like for independence testing. For example, if you would like to use gaussCItest you would type indepTest = 'gaussCItest' into the function otherwise indepTest = 'citest'. Note that, we used \link{gaussCItest} to compare our \link{MRPC} with the existing \link{pc}, because of \link{ci.test} is not robust. See details in example.
+\link{ci.test} in the \code{bnlearn} package (Marco Scutari, 2010) may also be used for testing conditional independence and return a p-value. The default test statistic is the mutual information for categorical variables, the Jonckheere-Terpstra test for ordered factors and the linear correlation for continuous variables. See help(ci.test).
 }
 
-\item{labels}{A character vector of variable, or node, names. All variables are denoted in column in the input matrix.}
+\item{labels}{A character vector of names of variables (nodes). These are typically the column names of the data matrix.}
 
-\item{p}{(optional) The number of variables, or nodes. May be specified if the labels are not provided, in which case the labels are set to 1:p.}
+\item{p}{(optional) The number of variables (nodes). Need to be specified if the labels are not provided, in which case the labels are set to 1:p.}
 
   \item{method}{
 (optional) Character string specifying method. The default, "stable" provides an order-independent skeleton.
@@ -59,26 +57,13 @@ Remember that need to specify the which indepTest would like for independence te
 
 }
 \details{
-We incorporated sequential hypothesis testing to draw the undirected graph, skeleton, by the \link{ModiSkeleton} function this is similar to the pc algorithm \link{skeleton} function but, the difference is that the \link{ModiSkeleton} function uses alpha, significance level, as a function of the prior outcomes, reject or accept hypothesis. The \link{skeleton} function uses alpha as a fixed pre-assigned significance level. Also, the \link{ModiSkeleton} function takes a robust correlation approach (Badsha et al., 2013) which reduces the impact of outliers. While the \link{skeleton} function uses classical correlation which is highly influnced by outliers. See details in in \link{ModiSkeleton} and \link{skeleton}). The other terms are the same as \link{skeleton}.
+The \link{ModiSkeleton} function incorporates sequential hypothesis testing to infer the graph skeleton. This function starts with a complete graph (all nodes are connected with undirected edges) and performs a series of marginal and conditional independence tests, removing the corresponding edge if the test is not rejected.
 
-The skeleton function starts with a complete undirected graph. Then a series of conditional independence tests is done and edges are deleted in the following way.
+\bold{First}, all pairs of nodes are tested for marginal independence. If two nodes x and y are judged to be marginally independent at a type I error rate alpha, the edge between them is deleted and the empty set is saved as separation sets S[x, y] and S[y, x]. After all pairs have been tested for marginal independence, some edges may be removed.
 
-\bold{First}, all pairs of nodes are tested for marginal independence. If two nodes x and y are judged to be marginally independent at level alpha, we adjusted the significance level at every test, see below for the details \bold{Choice of Significance Level}, the edge between them is deleted and the empty set is saved as separation sets S[x, y] and S[y, x]. After all pairs have been tested for marginal independence and some edges might have been removed.
+\bold{Second}, nodes (x, y) with an edge are tested for conditional independence given all subsets of the neighboring nodes. If there is any node z such that x and y are conditionally independent given z, the edge between x and y is removed and node z is saved as separation set, sepset, S[x, y] and S[y, x]. The algorithm continues in this way by increasing the size of the conditioning set step by step. The algorithm stops if all adjacency sets in the current graph are smaller than the size of the conditioning set. The result is the skeleton in which every edge is still undirected.
 
-\bold{Second}, all pairs of nodes (x, y) are tested for conditional independence given any single node or all possible subsets of the remaining nodes. If there is any node z such that x and y are conditionally independent given z, the edge between x and y is removed and node z is saved as separation set, sepset, S[x, y] and S[y, x]. The algorithm continues in this way by increasing the size of the conditioning set step by step. The algorithm stops if all adjacency sets in the current graph are smaller than the size of the conditioning set. The result is the skeleton in which every edge is still undirected.
-
-Now, each triple of vertices (x, z, y) such that the pairs (x, z) and (y, z) are each adjacent in the skeleton but (x, y) are not, such a triple is called an 'unshielded triple', is oriented based on the information saved in the conditioning sepset S[x, y] and S[y, x]. More precisely, an unshielded triple x---z---y is oriented as x ---> z <--- y, called a v-structure, if z is not in S[x, y] = S[y, x] i.e., x and y are conditionally dependent in given z.
-
-\bold{Choice of Significance Level}:
-One of the most important parts of our method is the choice of significance level. To draw the undirected skeleton, the significance level (number in (0,1)) treated as a tuning parameter for the marginal and conditional independence tests. At each step of the test, we must decide whether to reject or accept hypothesis, without having access to the number of hypotheses, potentially infinite, or the future p-values. Hypotheses with p-values below a significance level, typically 0.05, are considered to be statistically significant. While this controls type I errors for single testing problems, in the case of testing multiple hypotheses we need to adjust the significance level to control other metrics such as family-wise error rate (FWER) or false discovery rate (FDR) or marginal FDR (mFDR). FWER is the probability of rejecting at least one true null hypothesis, which is very conservative for multiple testing. On the other hand, FDR is the expected proportion of false positives among rejected null hypotheses (Benjamini and Hochberg, 1995) and mFDR is the expected number of false discoveries to the expected number of discoveries. FDR controls a property of one realized set of tests, while mFDR is the ratio of two expectations over many realizations.
-
-To draw the undirected skeleton, the \link{skeleton} algorithm (Spirtes et al., 2000) used alpha as a fixed pre-assigned significance level, which does not control the FDR and mFDR. Kalisch and Buhlmann, 2007 also used alpha as a fixed pre-assigned value based on Structural Hamming Distance (SHD) suggested by Tsamardinos et al., (2006) for estimating high-dimensional DAG with the \link{pc} algorithm. But, the problem is that to calculate SHD, we have to need the true graph, which is unknown in our study.
-
-Another problem of using fixed pre-assigned significance level, alpha, is that if the p-value is close to the value of alpha, then it is difficult to accept or reject null hypotheses. For example, if p-value = 0.02312 and if we used fixed alpha = 0.05, then it is considered to be statistically significant. But, if we used alpha = 0.01, then it is considered to be statistically insignificant, see examples in \link{MRPC} for model 0 and model 3. Now, a question is how can we choose the appropriate value of alpha.
-To avoid these problems, we need to adjust the alpha value at each step of the test. (Benjamini and Hochberg, 1995) also proposed a sequential testing procedure to control FDR in multiple testing problems assuming that all the p-values are given a priori but it does not address the scenario described above.
-
-Therefore, the \link{ModiSkeleton} function uses the LOND algorithm for alpha, level of significance, as a function of the prior outcomes, reject or accept, that control FDR and mFDR in an online manner (Javanmard and Montanari, 2015), which ensures that FDR remains below a pre-assigned alpha level.
-
+Unlike existing algorithms, which control only the type I error rate for each individual test, MRPC implements the LOND (Level On the Number of Discoveries) method (Javanmard and Montanari, 2015), which is a sequential hypothesis testing procedure and sets value of alpha for each test based on the number of discoveries (i.e., rejections), to control the overall false discovery rate.
 }
 
 \value{
@@ -131,12 +116,12 @@ Md Bahadur Badsha (mdbadsha@uidaho.edu)
 }
 
 \seealso{
- \link{MRPC} for estimating a DAG using the Mendelian Randomization (MR) based PC (MRPC) algorithm; \link{EdgeOrientation} for orientation rules for edges in MRPC; \link{SimulatedData} simulated data generating function.
+ \link{MRPC}; \link{EdgeOrientation}; \link{SimulateData}.
 }
 \examples{
 # Load packages
-library(pcalg)   # library for pc algorithm
-library(bnlearn) # library for ci.test
+library(pcalg)   # library for multiple pc algorithms
+library(bnlearn) # library for Bayesian network inference algorithms
 
 # Load predefined simulated data
 # Data pre-processing
@@ -150,7 +135,7 @@ library(bnlearn) # library for ci.test
 
 # Model 1
 # Estimate Skeleton
-data <- simu.data_M1 # data for model 1
+data <- simu_data_M1 # data for model 1
 n <- nrow(data)      # Number of row
 V <- colnames(data)  # Column names
 
@@ -170,25 +155,25 @@ plot(Skel.fit@graph,
 
 # Other models are available and may be called as follows:
 # Model 0
-# data <- simu.data_M0
+# data <- simu_data_M0
 
 # Model 2
-# data <- simu.data_M2
+# data <- simu_data_M2
 
 # Model 3
-# data <- simu.data_M3
+# data <- simu_data_M3
 
 # Model 4
-# data <- simu.data_M4
+# data <- simu_data_M4
 
 # Model Multiparent
-# data <- simu.data_multiparent
+# data <- simu_data_multiparent
 
 # Model Star
-# data <- simu.data_starshaped
+# data <- simu_data_starshaped
 
 # Model Layered
-# data <- simu.data_layered
+# data <- simu_data_layered
 
 }
 

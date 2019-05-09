@@ -2,10 +2,10 @@
 \alias{EdgeOrientation}
 
 \title{
-Edge Orientation Rules for the MRPC Algorithm
+Perform edge orientation under the MRPC algorithm
 }
 \description{
-This function performs the last step of the \link{MRPC} algorithm where it determines the edge direction of the undirected graph. The function first determines the edges between genetic variants and gene expression nodes based on MR. Then it orients the v-structures followed by the remaining edges weather MR is applicable or not. MR is a new way for edge direction determination based on four different cases. See below for the details.
+This function performs the second step of the \link{MRPC} algorithm where it determines the edge direction in the graph skeleton inferred by the function \link{ModiSkeleton}. If the data contain genetic variants, this function first determines the edges between genetic variants and phenotype nodes based on the principle of Mendelian randomization. Next it identifies potential v-structures and orients the edges in them.  For the remaining edges, it examines triplets in turn to see whether a triplet is compatible with one of the basic models. See the references for details.
 }
 \usage{
 EdgeOrientation(gInput, GV = GV, suffStat, FDR, indepTest = indepTest, verbose = FALSE)
@@ -27,14 +27,13 @@ Need to specify pre-assigned level. If FDR = 0.05, that ensures FDR and mFDR rem
 \item{verbose}{(optional) 1: detailed output is provided; 0: No output is provided}
 }
 \details{
-The orientation of the edge directions based on Mendelian randomization using the four different cases. Here, we consider x is a genetic variant, y and z are the gene expression data. The 1st column of the input matrix will be the genetic variant and the remaining columns are the gene expression data.
+The orientation of the edge directions based on the principle of Mendelian randomization involves four cases, which are four of the five basic models in Badsha and Fu (2018) and Badsha et al. (2018). For example, we consider x to be a genetic variant, y and z the phenotype nodes.
 
 Four different cases are as follows:
 
 \bold{Case-1}: Relation between x, genetic variant, and the other nodes. Then genetic variant will regulate the other node, genes, and direction will be genetic variant --> other node. Note that if the data has more than one genetic variant and two genetic variant have edges, then direction will be genetic variant <--> genetic variant, which indicates that there is evidence that the two genetic variants are not independent, but we do not have enough information to determine which genetic variant is the regulator and which is the target.
 
 \bold{Case-2}: If y and z are adjacent and, x and z are conditionally independent given y, then gene y will regulate the expression of gene z and the edge direction will be y --> z.
-
 
 \bold{Case-3}: If y and z are adjacent and, x and z are conditionally dependent given y, then gene z will regulate the expression of gene y and the edge direction will be z --> y.
 
@@ -78,8 +77,15 @@ An object of \link{class} that contains an estimate of the equivalence class of 
 Md Bahadur Badsha (mdbadsha@uidaho.edu)
 }
 
+\references{
+Md Bahadur Badsha and Audrey Qiuyan Fu (2018). Learning causal biological networks with the 
+principle of Mendelian randomization. bioRxiv doi:10.1101/171348.
+
+Md Bahadur Badsha, Evan A Martin, and Audrey Qiuyan Fu. (2018) MRPC: An R package for accurate inference of causal graphs. arXiv arXiv:1806.01899.
+}
+                
 \seealso{
-\link{MRPC} for estimating a DAG using the Mendelian Randomization (MR) based (PC) algorithm; \link{ModiSkeleton} for estimating a skeleton using modified skeleton function; \link{SimulatedData} for simulated data generating function.
+\link{MRPC}; \link{ModiSkeleton}; \link{SimulateData}.
 
 }
 
@@ -95,7 +101,7 @@ library(pcalg)  #library for existing pc
 
 # Model 1
 Truth <- MRPCtruth$M1   #Truth for model 1
-data <- simu.data_M1    #data load for model 1
+data <- simu_data_M1    #data load for model 1
 n <- nrow (data)        #Number of row
 V <- colnames(data)     #Column names
 
@@ -129,27 +135,27 @@ plot(Edge_orientation,
 
 # Model 2
 # Truth <- MRPCtruth$M2
-# data <- simu.data_M2
+# data <- simu_data_M2
 
 # Model 3
 # Truth <- MRPCtruth$M3
-# data <- simu.data_M3
+# data <- simu_data_M3
 
 # Model 4
 # Truth <- MRPCtruth$M4
-# data <- simu.data_M4
+# data <- simu_data_M4
 
 # Model Multiparent
 # Truth <- MRPCtruth$Multiparent
-# data <- simu.data_multiparent
+# data <- simu_data_multiparent
 
 # Model Star
 # Truth <- MRPCtruth$Star
-# data <- simu.data_starshaped
+# data <- simu_data_starshaped
 
 # Model Layered
 # Truth <- MRPCtruth$Layered
-# data <- simu.data_layered
+# data <- simu_data_layered
 
 }
 

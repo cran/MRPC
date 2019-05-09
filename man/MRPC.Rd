@@ -1,10 +1,10 @@
 \name{MRPC}
 \alias{MRPC}
 \title{
-Estimate a causal network using the MRPC Algorithm
+Infer a causal network using the MRPC algorithm
 }
 \description{
-The MRPC () function is used to estimate a causal network (or causal graph) with directed and undirected edges from observational data, by modifying the existing \link{pc} algorithm (Spirtes et al., 2000). Existing \link{pc} algorithm is used for estimating the DAG from observational data and several variants are implemented in the R package called pcalg. Several challenges remain when the \link{pc} algorithm is applied to noisy genomic data. To tackle these challenges, we developed a novel machine learning algorithm called Mendelian Randomization (MR) based PC (MRPC) to efficiently learn a causal gene regulatory network (or a causal graph of genes) using genotype and gene expression data. Unlike existing \link{pc} algorithm, the four major updates in the MRPC algorithm are that (i) we incorporate a sequential testing method to control the False Discovery Rate (FDR), (ii) take a robust approach to reduce the impact of outliers, (iii) improve v-structure identification and (iv) implement a new way for edge direction determination based on the Principle of Mendelian Randomization (PMR) (Badsha and Fu, 2018 and Badsha et al., 2018). See details below. 
+This function is used to infer a causal network (or a causal graph) with directed and undirected edges from observational data.  It implements the MRPC (PC with the principle of Mendelian randomization) algorithm described in Badsha and Fu (2018), and the implementation is based on the \link{pc} algorithm in the \code{pcalg} package. The MRPC algorithm contains four major updates over the \link{pc} algorithm: (i) incorporating a sequential testing method to control the False Discovery Rate (FDR), (ii) improved v-structure identification; (iii) allowing for calculation of robust correlation to reduce the impact of outliers, and (iv) a new procedure for edge orientation based on the principle of Mendelian randomization (Badsha and Fu, 2018 and Badsha et al., 2018). See details below. 
 
 }
 \usage{
@@ -19,10 +19,10 @@ MRPC(data, suffStat, GV, FDR = 0.05, indepTest, labels, p,
 }
 
 \arguments{
-The MRPC algorithm is a modification of the existing \link{pc} algorithm. Therefore, most of the terms and sentences are taken from \link{pc} (Spirtes et al., 2000).
+This function is based on the \link{pc} function in the \code{pcalg} package. Therefore, many arguments are similar to those in \link{pc}.
 
 \item{data}{
-Data matrix, where the rows are the observations and the columns are the genes. The columns are ordered from  single-nucleotide polymorphism (SNPs), indels, copy number variation (CNV), or expression quantitative trait loci (eQTL) to genes. If we consider one genetic variant, then the first column of the input matrix is the genetic variant and the remaining columns are the gene expression data and so on.
+Data matrix, where the rows are observations and the columns are features (i.e., variables, or nodes). If genetic variants are included, then the columns start from genetic variants (e.g., single-nucleotide polymorphisms, or SNPs; insertions and deletions, or indels; copy number variation, or CNVs; and expression quantitative trait loci, or eQTLs to genes), and followed by phenotypes (e.g., gene expression).  For example, if the data contains one genetic variant, then the first column of the input matrix is the genetic variant and the remaining columns are the gene expression data.
 }
 
 \item{suffStat}{A \link{list} of sufficient statistics, containing all necessary elements for the conditional independence tests in the function indepTest for gaussCItest. The sufficient statistics consist of the correlation matrix of the data and the sample size.
@@ -32,7 +32,7 @@ Data matrix, where the rows are the observations and the columns are the genes. 
 }
 
 \item{FDR}{
-Need to specify pre-assigned level. If FDR = 0.05 this ensures FDR and mFDR remains below 0.05.
+Need to specify the desired level of the overall false discovery rate. 
 }
 \item{indepTest}{A \link{function} for testing conditional independence. It is used to test the conditional independence of x and y given S, called as indepTest(x, y, S, suffStat). Where, x and y are variables, and S is a vector, possibly empty, of variables. suffStat is a list, see the argument above. The return value of indepTest is the p-value of the test for conditional independence. The different indepTest is used for different data types, for example, Gaussian data = gaussCItest, Discrete data = disCItest and Binary data = binCItest. See help(gaussCItest)
 
@@ -61,31 +61,34 @@ Remember that need to specify the which indepTest would like for independence te
 
 \item{maj.rule}{(optional) Logical. Indicates that the triplets will be checked for ambiguity using a majority rule idea, which is less strict than the conservative PC algorithm. For more information, see details.}
 
-\item{solve.confl}{(optional) If TRUE, the orientation of the v-structures and the orientation rules work with lists for candidate sets and allow bi-directed edges to resolve conflicting edge orientations. In this case, only option u2pd = "relaxed"" is supported. Note that the resulting object might not be a CPDAG because bi-directed edges might be present. See details for more information.}
+\item{solve.confl}{(optional) If TRUE, the orientation of the v-structures and the orientation rules work with lists for candidate sets and allow bi-directed edges to resolve conflicting edge orientations. In this case, only option u2pd = "relaxed" is supported. Note that the resulting object might not be a CPDAG because bi-directed edges might be present. See details for more information.}
 
 \item{verbose}{(optional) If TRUE, detailed output is provided. The default is FALSE which does not print output details.}
 
 }
 \details{
-Nodes are used as major building blocks of the models, which represent random variables and edges, which encode conditional dependence relations of the enclosing vertices (Kalisch and Buhlmann, 2007). The structure of conditional independence among the random variables can be explored using the Markov properties. The directed edges show the presence and direction of direct causal effects. A bidirected edge means that the edge orientation should be forward (--->) or bacward (<---). The PC algorithm is computationally efficient for learning the underlying DAG (Kalisch and Buhlmann, 2007). The MPRC algorithm improves on the existing PC algorithm in the following aspects:
+The PC algorithm is computationally efficient for learning a directed acyclic graph (Spirtes et al., 2000).  Several variants of the original PC algorithms are available (Kalisch and Buhlmann, 2007; Kalisch et al., 2012). Similar to these PC-like algorithms, our MRPC algorithm also contains two main steps:
+    
+\bold{Step-1}: Inference of the graph skeleton.  A graph skeleton is an undirected graph with edges that are supported by the data.  Similar to existing PC-like algorithms, we perform statistical tests for marginal and conditional independence tests.  If the null hypothesis of independence is not rejected, then the corresponding edge is removed and never tested again.  
+    
+However, unlike existing algorithms, which control only the type I error rate for each individual test, MRPC implements the LOND (Level On the Number of Discoveries) method (Javanmard and Montanari, 2015), which is a sequential hypothesis testing procedure and sets the significance level for each test based on the number of discoveries (i.e., rejections), to control the overall false discovery rate (FDR).  See \link{ModiSkeleton}.
+    
+Genome data may have outliers that drastically alter the topology of the inferred graph. MRPC allows for the estimate of robust correlation, which may be the substitute of the Pearson correlation as the input to graph inference (Badsha et al., 2013).    
 
-(i) the genotype data at genetic variants (e.g., SNPs and copy number variation) provide additional information that helps distinguish the casual direction between two genes; this is the rationale behind Mendelian Randomization (MR). MR can greatly reduce the space of possible graphs and increase the inference efficiency for inference of genomic data but PC does not rely on MR and determination of the edge direction can be tricky when the graph is large.
-
-(ii) the number of statistical tests is unknown beforehand in all existing variants of the PC algorithm. It is unclear how these algorithms control the false discovery rate (FDR) or marginal FDR (mFDR), because it is used alpha as a fixed pre-assigned significance level for testing the independence test, but results are sensitive to the choice of alpha, which is an important issue for multiple hypotheses testing.
-
-(iii) the gene expression data often have outliers, even after normalization, which may drastically alter the topology of the inferred graph. 
-
-(iv) to find the v-structure the PC algorithm assumes that if there is no evidence that two nodes are conditionally independent, then the nodes are conditionally dependent, although we don't have any evidence about their conditional dependence. In that case the v-structure is worng.
-
-To overcome the above challenges, we propose a novel algorithm, MRPC (MR-based PC), which can be applied to genotype and gene expression data and efficiently learn a causal graph of genes. \bold{First}, we take a robust approach (Badsha et al., 2013) and calculate the robust correlation matrix on which the series of hypothesis testing is performed. \bold{Second}, we adopt a sequential method LOND (significance Levels based On Number of Discoveries) (Javanmard and Montanari, 2015) that controls the FDR or marginal FDR (mFDR) in an online manner, where level of significance is used a function of the previous decision made so far (we adjusted at each step in the test) and that ensures that FDR and mFDR remains below alpha. \bold{Third}, we improve the v-structure identification using the addtional conditional test. \bold{Finally}, we implement a new way for edge direction determination based on Mendelian randomization.
-
-The two main steps in the MRPC algorithm are as follows:
-
-\bold{Step-1}: We incorporated sequential hypothesis testing to draw the undirected graph (skeleton) by \link{ModiSkeleton} function  (similar as the pc algorithm by \link{skeleton} function but, difference is that the \link{ModiSkeleton} function is used alpha (significance level) as a function of the prior outcomes (reject or accept hypothesis) but the \link{skeleton} function used alpha as a fixed pre-assigned significance level and \link{ModiSkeleton} take a robust correlation approach reduces the impact of outliers but the \link{skeleton} used classical correlation which is highly influnced by outliers. See details in in \link{ModiSkeleton} and \link{skeleton}).
-
-\bold{Step-2}: We implemented a new way for edge direction determination based on Mendelian randomization (MR). We consider the first column of the input matrix will be the genotype of the SNPs/indels/CNV/eQTL and the remaining column are the gene expression data. See details in \link{EdgeOrientation}.
-
-All statistical inference is done in \bold{Step 1}, while \bold{Step-2} is just application of deterministic rules on the results of \bold{Step-1}. If the first part is done correctly, the second part will never fail. If, however, there are errors in \bold{Step-1}, \bold{Step-2} will be more sensitive since it depends on the inferential results of \bold{Step-1}.
+\bold{Step-2}: Edge orientation.  With the graph skeleton inferred from Step 1, we orient each edge that is present in the graph.  MRPC is fundamentally different from algorithms in the \code{pcalg} (Kalisch and Buhlmann, 2007; Kalisch et al., 2012) and \code{bnlearn} (Scutari, 2010) packages in the following ways (see \link{EdgeOrientation}):
+    
+(i) When analyzing genomic data, genetic variants provide additional information that helps distinguish the casual direction between two genes.  Our MRPC algorithm incorporates the principle of Mendelian randomization in graph inference, which greatly reduces the space of possible graphs and increases the inference efficiency.
+    
+(ii) Next or if the input is not genomic data, we search for possible triplets 
+that may form a v-structure (e.g.,X-->Y<--Z). We check conditional test results
+from step I to see whether X and Z are independent given Y. If they are, then 
+this is not a v-structure; alternative models for the triplet may be any of the 
+following three Markov equivalent graphs: X-->Y-->Z, X<--Y<--Z, and 
+X<--Y-->Z. If this test is not performed in the first step, we conduct it in 
+this step. This step improves the accuracy of the v-structure identification over
+existing methods. 
+    
+(iii) If there are undirected edges after steps (i) and (ii), we examine iteratively triplets of nodes with at least one directed edge and no more than one undirected edge. We check the marginal and conditional test results from Step I to determine which of the basic models is consistent with the test results.  It is plausible that some undirected edges cannot be oriented, and we leave them as undirected.
 }
 
 \value{
@@ -124,26 +127,26 @@ Md Bahadur Badsha (mdbadsha@uidaho.edu)
 }
 
 \references{
-1.Badsha, M. B. Mollah, M. N. Jahan, N. and Kurata, H. (2013). Robust complementary hierarchical clustering for gene expression data analysis by beta-divergence. J Biosci Bioeng 116(3): 397-407.
+Md Bahadur Badsha and Audrey Qiuyan Fu (2018). Learning causal biological networks with the 
+principle of Mendelian randomization. bioRxiv doi:10.1101/171348.
 
-2. Javanmard and Montanari (March 5, 2015) On Online Control of False Discovery Rate. arXiv:150206197 [statME].
+Md Bahadur Badsha, Evan A Martin, and Audrey Qiuyan Fu. (2018) MRPC: An R package for accurate inference of causal graphs. arXiv arXiv:1806.01899.
 
-3.Kalisch, M., Machler, M., Colombo, D., Maathuis, M.H. & Buhlmann, P. Causal Inference Using Graphical Models with the R Package pcalg. J. Stat. Softw. 47, 26 (2012).
+Badsha, M. B. Mollah, M. N. Jahan, N. and Kurata, H. (2013) Robust complementary hierarchical clustering for gene expression data analysis by beta-divergence. J Biosci Bioeng 116(3): 397-407.
 
-4. Kalisch, M. and Buhlmann, P. (2007) Estimating High-Dimensional Directed Acyclic Graphs with the PC-Algorithm, Journal of Machine Learning Research, 8, 613-636.
+Javanmard, A. and Montanari, A. (2015) On Online Control of False Discovery Rate. arXiv:150206197 [statME].
 
-5.Marco Scutari (2010). Learning Bayesian Networks with the bnlearn R Package. Journal of Statistical Software, 35(3), 1-22.
+Kalisch, M. and Buhlmann, P. (2007) Estimating High-Dimensional Directed Acyclic Graphs with the PC-Algorithm, Journal of Machine Learning Research, 8, 613-636.
 
-6. Md Bahadur Badsha and Audrey Qiuyan Fu. Learning causal biological networks with the 
-principle of Mendelian randomization. bioRxiv, 2018. doi:10.1101/171348.
+Kalisch, M., Machler, M., Colombo, D., Maathuis, M.H. & Buhlmann, P. (2012) Causal Inference Using Graphical Models with the R Package pcalg. J. Stat. Softw. 47, 26.
 
-7. Md Bahadur Badsha, Evan A Martin, and Audrey Qiuyan Fu. MRPC: An R package for accurate inference of causal graphs. arXiv, 2018. arXiv:1806.01899
+Marco Scutari (2010). Learning Bayesian Networks with the bnlearn R Package. Journal of Statistical Software, 35(3), 1-22.
 
-8. Spirtes,P.  Glymour, C. and Scheines, R (2000). Causation, Prediction, and Search, 2nd edition. The MIT Press.
-
+Spirtes,P.  Glymour, C. and Scheines, R (2000). Causation, Prediction, and Search, 2nd edition. The MIT Press.
 }
+                    
 \seealso{
-\link{ModiSkeleton} for estimating a skeleton using modified skeleton function; \link{EdgeOrientation} for orientation rules determination for edges in MRPC; \link{SimulatedData} for simulated data generating function.
+\link{ModiSkeleton} for inferring a graph skeleton (i.e., an undirected graph); \link{EdgeOrientation} for edge orientation in the inferred graph skeleton; \link{SimulateData} for generating data under a topology.
 }
 \examples{
 # Load packages
@@ -164,7 +167,7 @@ library(bnlearn)  # library for mmhc
 
 # Model 1
 Truth <- MRPCtruth$M1   # Truth for model 1
-data <- simu.data_M1    # load data for model 1
+data <- simu_data_M1    # load data for model 1
 n <- nrow (data)        # Number of rows
 V <- colnames(data)     # Column names
 
@@ -216,37 +219,44 @@ plot(pc.fit,
 Adj_directed <- as(MRPC.fit@graph,
                    "matrix")
 
-# Plot of the graph with colored modules.
-DendroModuleGraph(Adj_directed,
-                  minModuleSize = 1,
-                  GV = 1)
+# Plot of dendrogram with modules colors of nodes
+PlotDendrogramObj <- PlotDendrogram(Adj_directed,
+                  minModuleSize = 2)
+                  
+#Visualization of inferred graph with modules colors
+PlotGraphWithModulesObj <- PlotGraphWithModules(Adj_directed,PlotDendrogramObj,GV=1,node.size
+=8,arrow.size = 5,label.size = 3,alpha = 1) 
+
+#plot 
+plot(PlotGraphWithModulesObj) 
+
 
 # Other models are available and may be called as follows:
 # Model 0
 # Truth <- MRPCtruth$M0
-# data <- simu.data_M0
+# data <- simu_data_M0
 
 # Model 2
 # Truth <- MRPCtruth$M2
-# data <- simu.data_M2
+# data <- simu_data_M2
 
 # Model 3
 # Truth <- MRPCtruth$M3
-# data <- simu.data_M3
+# data <- simu_data_M3
 
 # Model 4
 # Truth <- MRPCtruth$M4
-# data <- simu.data_M4
+# data <- simu_data_M4
 
 # Model Multiparent
 # Truth <- MRPCtruth$Multiparent
-# data <- simu.data_multiparent
+# data <- simu_data_multiparent
 
 # Model Star
 # Truth <- MRPCtruth$Star
-# data <- simu.data_starshaped
+# data <- simu_data_starshaped
 
 # Model Layered
 # Truth <- MRPCtruth$Layered
-# data <- simu.data_layered
+# data <- simu_data_layered
 }

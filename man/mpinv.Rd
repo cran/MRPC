@@ -2,10 +2,10 @@
 \alias{mpinv}
 
 \title{
-Function of Calculate Inverse Matrix
+Calculate the inverse matrix
 }
 \description{
-Calculate inverse of the matrix, when the matrix is not square. This function is used to calculate the robust correlation matrix.
+This function calculates the inverse of the non-square matrix as part of the calculation of the robust correlation matrix.
 }
 \usage{
 mpinv(X)
@@ -25,5 +25,5 @@ Matrix
 Md Bahadur Badsha (mdbadsha@uidaho.edu)
 }
 \examples{
-Inversematrix <- mpinv(simu.data_M0)
+Inversematrix <- mpinv(simu_data_M0)
 }
