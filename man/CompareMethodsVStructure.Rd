@@ -2,42 +2,44 @@
 \alias{CompareMethodsVStructure}
 
 \title{
-Comparison of inference accuracy with and without a v-structure
+Comparison of inference accuracy of different methods on data with and without a v-structure
 }
 \description{
-This is the example comparison of inference accuracy with and without a v-structure by recall and precision of three methods, \link{MRPC}, \link{mmhc}, and \link{pc}, across 1000 data sets. Signal values indicate the signal strength: the larger the value the stronger the signal. The sample size in each simulated data set is 1000. See Badsha and Fu (2018) for the comparison of inference accuracy with sample sizes of 50, 200, and 500 .  
+This function compares inference accuracy on graphs with and without a v-structure in terms of recall and precision by five methods \link{MRPC}, \link{pc}, \link{pc.stable}, \link{mmpc}, and \link{mmhc}, across multiple data sets. See details in Badsha et al., 2018.  Also see Badsha and Fu, 2019.
 }
 \usage{
-CompareMethodsVStructure(N = 1000, signal, model, ita = 1000)
+CompareMethodsVStructure(N, signal, model, includeGV, ita)
 }
 
 \arguments{
 
-\item{N}{Number of observation}
+\item{N}{Number of observations.}
 \item{signal}{
-The coefficient of parent nodes in the linear model. For example, strong = 1.0, moderate = 0.5, and weak = 0.2 signal strengths.
+The coefficient of parent nodes in the linear model. For example, strong = 1.0, moderate = 0.5, and weak = 0.2.
 }
   \item{model}{
-The model data will be simulated for. For example, if you want comparison of inference accuracy without a v-structure you would type 'model1' into the function. If you want comparison of inference accuracy with a v-structure you would type 'model2' into the function.
+The graph from which the data is generated.  Specifically, two graphs are considered here: 'model 1' (V1->T1->T2), which does not contain a v-structure, and 'model 2' (V1->T1<-T2), which is a v-structure.
 }
-\item{ita}{Number of different data sets}
+\item{includeGV}{
+If TRUE, include edges involving genetic variants (GVs) when comparing the true and inferred graphs. If FALSE, exclude such edges.  
+}
+\item{ita}{Number of independent data sets to simulate.}
 
 }
 \details{
-The output is a matrix, where the rows are the three methods, MRPC, mmhc, and pc, and the colums are mean Recall, sd Recall, mean Precision, and sd Precision, respectively.
+The output is a matrix, where the rows are the five methods: MRPC, pc, pc.stable, mmpc, and mmhc, and the columns are the mean of recall, sd of recall, mean of precision, and sd of precision, respectively.  Mean and sd are calculated across all the simulated data sets.  For methods from the bnlearn package (pc.stable, mmpc and mmhc), we apply the blacklist argument to exclude edges pointing at the genetic variant, and therefore evaluate recall and precision including the edges involving these edges (i.e., includeGV = TRUE).
 }
 \value{
 Matrix
 }
 \references{
-Md Bahadur Badsha and Audrey Qiuyan Fu (2018). Learning causal biological networks with the 
-principle of Mendelian randomization. bioRxiv doi:10.1101/171348.
+1. Badsha MB and Fu AQ (2019). Learning causal biological networks with the principle of Mendelian randomization. Frontiers in Genetics, 10(460).
 
-Md Bahadur Badsha, Evan A Martin, and Audrey Qiuyan Fu. (2018) MRPC: An R package for accurate inference of causal graphs. arXiv arXiv:1806.01899.
+2. Badsha MB, Martin EA and Fu AQ (2018). MRPC: An R package for accurate inference of causal graphs. arXiv:1806.01899.
   
-Kalisch, M., Machler, M., Colombo, D., Maathuis, M.H. & Buhlmann, P. (2012) Causal Inference Using Graphical Models with the R Package pcalg. J. Stat. Softw. 47, 26.
+3. Kalisch M, Machler M, Colombo D, Maathuis MH and Buhlmann P (2012). Causal Inference Using Graphical Models with the R Package pcalg. Journal of Statistical Software, 47, 26.
 
-Marco Scutari (2010). Learning Bayesian Networks with the bnlearn R Package. Journal of Statistical Software, 35(3), 1-22.
+4. Scutari M (2010). Learning Bayesian Networks with the bnlearn R Package. Journal of Statistical Software, 35(3), 1-22.
 }
 
 \author{
@@ -45,19 +47,24 @@ Md Bahadur Badsha (mdbadsha@uidaho.edu)
 }
 
 \seealso{
-\link{RecallPrecision}: Performance Evaluation by Recall and Precision in MRPC.
+\link{RecallPrecision}: Performance evaluation in terms of recall and precision.
 }
 \examples{
-# Comparison of inference accuracy without a v-structure 
-# across 10 data sets and sample size in each simulated 
-# data set is set to 100 with signal = 1.0. 
-Result1 <- CompareMethodsVStructure(N = 100, signal = 1.0,
-                                    'model1', ita = 10)
+# For demonstration purposes, only 10 data sets 
+# with a sample size of 100 are simulated here.
+
+# Comparison of inference accuracy on model 1 without a v-structure 
+Result1 <- CompareMethodsVStructure(N = 100, 
+                                    signal = 1.0,
+                                    'model1', 
+                                    includeGV = TRUE,
+                                    ita = 10)
 
 # Comparison of inference accuracy with a v-structure
-# across 10 data sets and sample size in each simulated 
-# data set is set to 100 with signal=1.0. 
-Result2 <- CompareMethodsVStructure(N = 100, signal = 1.0,
-                                    'model2', ita = 10)
+Result2 <- CompareMethodsVStructure(N = 100, 
+                                    signal = 1.0,
+                                    'model2',
+                                    includeGV = TRUE, 
+                                    ita = 10)
 
 }

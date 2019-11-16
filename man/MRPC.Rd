@@ -4,17 +4,17 @@
 Infer a causal network using the MRPC algorithm
 }
 \description{
-This function is used to infer a causal network (or a causal graph) with directed and undirected edges from observational data.  It implements the MRPC (PC with the principle of Mendelian randomization) algorithm described in Badsha and Fu (2018), and the implementation is based on the \link{pc} algorithm in the \code{pcalg} package. The MRPC algorithm contains four major updates over the \link{pc} algorithm: (i) incorporating a sequential testing method to control the False Discovery Rate (FDR), (ii) improved v-structure identification; (iii) allowing for calculation of robust correlation to reduce the impact of outliers, and (iv) a new procedure for edge orientation based on the principle of Mendelian randomization (Badsha and Fu, 2018 and Badsha et al., 2018). See details below. 
+This function is used to infer a causal network (or a causal graph) with directed and undirected edges from observational data. It implements the MRPC (PC with the principle of Mendelian randomization) algorithm described in Badsha and Fu, 2019 and Badsha et al., 2018, and the implementation is based on the \link{pc} algorithm in the \code{pcalg} package. The MRPC algorithm contains four major updates over the \link{pc} algorithm: (i) incorporating a sequential testing method to control the False Discovery Rate (FDR), (ii) improved v-structure identification; (iii) allowing for calculation of robust correlation to reduce the impact of outliers, and (iv) a new procedure for edge orientation based on the principle of Mendelian randomization (PMR) (Badsha and Fu, 2019 and Badsha et al., 2018). See details below. 
 
 }
 \usage{
-MRPC(data, suffStat, GV, FDR = 0.05, indepTest, labels, p,
+MRPC(data, suffStat, GV, FDR = 0.05, alpha = 0.05, indepTest, labels, p,
     fixedGaps = NULL, fixedEdges = NULL,
     NAdelete = TRUE, m.max = Inf,
     u2pd = c("relaxed", "rand", "retry"),
     skel.method = c("stable", "original", "stable.fast"),
     conservative = FALSE,
-    maj.rule = FALSE, solve.confl = FALSE,
+    maj.rule = FALSE, solve.confl = FALSE, FDRcontrol = TRUE,
     verbose = FALSE)
 }
 
@@ -22,7 +22,7 @@ MRPC(data, suffStat, GV, FDR = 0.05, indepTest, labels, p,
 This function is based on the \link{pc} function in the \code{pcalg} package. Therefore, many arguments are similar to those in \link{pc}.
 
 \item{data}{
-Data matrix, where the rows are observations and the columns are features (i.e., variables, or nodes). If genetic variants are included, then the columns start from genetic variants (e.g., single-nucleotide polymorphisms, or SNPs; insertions and deletions, or indels; copy number variation, or CNVs; and expression quantitative trait loci, or eQTLs to genes), and followed by phenotypes (e.g., gene expression).  For example, if the data contains one genetic variant, then the first column of the input matrix is the genetic variant and the remaining columns are the gene expression data.
+Data matrix, where the rows are observations and the columns are features (i.e., variables, or nodes). If genetic variants (GVs) are included, then the columns start from GVs (e.g., single-nucleotide polymorphisms, or SNPs; insertions and deletions, or indels; copy number variation, or CNVs; and expression quantitative trait loci, or eQTLs to genes), and followed by phenotypes (e.g., gene expression). For example, if the data contains one GV, then the first column of the input matrix is the GV and the remaining columns are the gene expression data.
 }
 
 \item{suffStat}{A \link{list} of sufficient statistics, containing all necessary elements for the conditional independence tests in the function indepTest for gaussCItest. The sufficient statistics consist of the correlation matrix of the data and the sample size.
@@ -34,6 +34,8 @@ Data matrix, where the rows are observations and the columns are features (i.e.,
 \item{FDR}{
 Need to specify the desired level of the overall false discovery rate. 
 }
+\item{alpha}{significance level (number in (0,1) for the individual tests.}
+    
 \item{indepTest}{A \link{function} for testing conditional independence. It is used to test the conditional independence of x and y given S, called as indepTest(x, y, S, suffStat). Where, x and y are variables, and S is a vector, possibly empty, of variables. suffStat is a list, see the argument above. The return value of indepTest is the p-value of the test for conditional independence. The different indepTest is used for different data types, for example, Gaussian data = gaussCItest, Discrete data = disCItest and Binary data = binCItest. See help(gaussCItest)
 
 The \link{ci.test} (Marco Scutari, 2010) is also used for testing conditional independence and return value of indepTest is the p-value. If none is specified, the default test statistic is the mutual information for categorical variables, the Jonckheere-Terpstra test for ordered factors and the linear correlation for continuous variables.See help(ci.test)
@@ -63,6 +65,8 @@ Remember that need to specify the which indepTest would like for independence te
 
 \item{solve.confl}{(optional) If TRUE, the orientation of the v-structures and the orientation rules work with lists for candidate sets and allow bi-directed edges to resolve conflicting edge orientations. In this case, only option u2pd = "relaxed" is supported. Note that the resulting object might not be a CPDAG because bi-directed edges might be present. See details for more information.}
 
+\item{FDRcontrol}{(optional) The default is TRUE which is used sequential FDR control method, otherwise used fixed significance level for the individual tests.}
+
 \item{verbose}{(optional) If TRUE, detailed output is provided. The default is FALSE which does not print output details.}
 
 }
@@ -88,7 +92,7 @@ X<--Y-->Z. If this test is not performed in the first step, we conduct it in
 this step. This step improves the accuracy of the v-structure identification over
 existing methods. 
     
-(iii) If there are undirected edges after steps (i) and (ii), we examine iteratively triplets of nodes with at least one directed edge and no more than one undirected edge. We check the marginal and conditional test results from Step I to determine which of the basic models is consistent with the test results.  It is plausible that some undirected edges cannot be oriented, and we leave them as undirected.
+(iii) If there are undirected edges after steps (i) and (ii), we examine iteratively triplets of nodes with at least one directed edge and no more than one undirected edge. We check the marginal and conditional test results from Step I to determine which of the basic models is consistent with the test results. It is plausible that some undirected edges cannot be oriented, and we leave them as undirected.
 }
 
 \value{
@@ -127,22 +131,21 @@ Md Bahadur Badsha (mdbadsha@uidaho.edu)
 }
 
 \references{
-Md Bahadur Badsha and Audrey Qiuyan Fu (2018). Learning causal biological networks with the 
-principle of Mendelian randomization. bioRxiv doi:10.1101/171348.
+1. Badsha MB and Fu AQ (2019). Learning causal biological networks with the principle of Mendelian randomization. Frontiers in Genetics, 10(460).
 
-Md Bahadur Badsha, Evan A Martin, and Audrey Qiuyan Fu. (2018) MRPC: An R package for accurate inference of causal graphs. arXiv arXiv:1806.01899.
+2. Badsha MB, Martin EA and Fu AQ (2018). MRPC: An R package for accurate inference of causal graphs. arXiv:1806.01899.
 
-Badsha, M. B. Mollah, M. N. Jahan, N. and Kurata, H. (2013) Robust complementary hierarchical clustering for gene expression data analysis by beta-divergence. J Biosci Bioeng 116(3): 397-407.
+3. Badsha MB, Mollah MN, Jahan N and Kurata H (2013). Robust complementary hierarchical clustering for gene expression data analysis by beta-divergence. J Biosci Bioeng, 116(3): 397-407.
 
-Javanmard, A. and Montanari, A. (2015) On Online Control of False Discovery Rate. arXiv:150206197 [statME].
+4. Javanmard A and Montanari A (2015). On Online Control of False Discovery Rate. arXiv:150206197 [statME].
 
-Kalisch, M. and Buhlmann, P. (2007) Estimating High-Dimensional Directed Acyclic Graphs with the PC-Algorithm, Journal of Machine Learning Research, 8, 613-636.
+5. Kalisch M and Buhlmann P (2007). Estimating High-Dimensional Directed Acyclic Graphs with the PC-Algorithm, Journal of Machine Learning Research, 8, 613-636.
 
-Kalisch, M., Machler, M., Colombo, D., Maathuis, M.H. & Buhlmann, P. (2012) Causal Inference Using Graphical Models with the R Package pcalg. J. Stat. Softw. 47, 26.
+6. Kalisch M, Machler M, Colombo D, Maathuis MH and Buhlmann P (2012). Causal Inference Using Graphical Models with the R Package pcalg. Journal of Statistical Software, 47, 26.
 
-Marco Scutari (2010). Learning Bayesian Networks with the bnlearn R Package. Journal of Statistical Software, 35(3), 1-22.
+7. Scutari M (2010). Learning Bayesian Networks with the bnlearn R Package. Journal of Statistical Software, 35(3), 1-22.
 
-Spirtes,P.  Glymour, C. and Scheines, R (2000). Causation, Prediction, and Search, 2nd edition. The MIT Press.
+8. Spirtes P, Glymour C and Scheines R (2000). Causation, Prediction, and Search, 2nd edition. The MIT Press.
 }
                     
 \seealso{
@@ -150,14 +153,15 @@ Spirtes,P.  Glymour, C. and Scheines, R (2000). Causation, Prediction, and Searc
 }
 \examples{
 # Load packages
-# We compare different simulated data across three methods: MRPC, 
-# PC in pcalg (Kalisch et al., 2012), and mmhc in bnlearn (Marco Scutari, 2010)
-library(pcalg)    # library for pc algorithm
-library(bnlearn)  # library for mmhc
+# We compare different simulated data across five methods: MRPC, 
+# PC in pcalg (Kalisch et al., 2012), and pc.stable, mmpc and mmhc in
+# bnlearn (Marco Scutari, 2010)
 
-# Load predefined simulated data
+library(MRPC)     # MRPC
+library(pcalg)    # pc
+library(bnlearn)  # pc.stable, mmpc and mmhc
+
 # Data pre-processing
-
 # The 1st column of the input matrix will be the genotype of the
 # expression quantitative trait loci (eQTL)/Copy number variation (CNV)
 # and the remaining columns are the gene expression data.
@@ -165,51 +169,62 @@ library(bnlearn)  # library for mmhc
 # We used pre-assigned level alpha = 0.05 that ensures FDR and mFDR
 # will remain below 0.05.
 
+# Load predefined simulated data
 # Model 1
 Truth <- MRPCtruth$M1   # Truth for model 1
 data <- simu_data_M1    # load data for model 1
 n <- nrow (data)        # Number of rows
 V <- colnames(data)     # Column names
 
-# Classical correlation
+# Calculate Pearson correlation
 suffStat_C <- list(C = cor(data),
                    n = n)
 
-# Robust correlation (Beta = 0.005)
-Rcor_R <- RobustCor(data, 0.005) 
-suffStat_R <- list(C = Rcor_R$RR,
-                   n = n)
-
-# Estimated graph by MRPC using gaussCItest and beta = 0.005
-MRPC.fit<- MRPC(data,
-                suffStat_R,
+# Infer the graph by MRPC
+MRPC.fit <- MRPC(data,
+                suffStat = suffStat_C,
                 GV = 1,
                 FDR = 0.05,
+                alpha = 0.05,
                 indepTest = 'gaussCItest',
                 labels = V,
+                FDRcontrol = TRUE,
                 verbose = TRUE)
 
-# Estimated graph by mmhc
-mmhc.fit <- mmhc(data)
-
-# Estimated graph by PC with alpha = 0.05
-pc.fit <- pc(suffStat_C,
+# Infer the graph by PC
+pc.fit <- pc(suffStat = suffStat_C,
              indepTest = gaussCItest,
              alpha = 0.05,
              labels = V,
              verbose = TRUE)
 
-# Plot the results
-# Show estimated graph
-par(mfrow = c(2, 2))
+# arcs not to be included from gene expression to genotype used in pc.stable, mmpc 
+bl <- data.frame (from=colnames (data)[-1], to='V1')
+
+# Infer the graph by pc.stable
+pc.stable.fit <- pc.stable(data.frame(data),blacklist=bl,undirected = FALSE) 
+
+# Infer the graph by mmpc
+mmpc.fit <- mmpc(data.frame(data),blacklist=bl,undirected = FALSE) 
+
+# Infer the graph by mmhc
+mmhc.fit <- mmhc(data.frame(data),blacklist=bl)
+
+
+# Plot the inferred graphs
+par(mfrow = c(2, 3))
 plot(Truth,
      main = "(A) Truth")
 plot(MRPC.fit,
      main = "(B) MRPC")
-graphviz.plot(mmhc.fit,
-              main = "(C) mmhc")
 plot(pc.fit,
-     main ="(D) pc")
+    main ="(C) pc")
+graphviz.plot(pc.stable.fit,
+    main = "(D) pc.stable")
+graphviz.plot(mmpc.fit,
+    main = "(E) mmpc")
+graphviz.plot(mmhc.fit,
+    main = "(F) mmhc")
 
 # Another option for plot of the results. First fig is the nodes
 # dendrogram with colored modules. Second fig is the plot of the graph
@@ -221,13 +236,18 @@ Adj_directed <- as(MRPC.fit@graph,
 
 # Plot of dendrogram with modules colors of nodes
 PlotDendrogramObj <- PlotDendrogram(Adj_directed,
-                  minModuleSize = 2)
+                                    minModuleSize = 2)
                   
-#Visualization of inferred graph with modules colors
-PlotGraphWithModulesObj <- PlotGraphWithModules(Adj_directed,PlotDendrogramObj,GV=1,node.size
-=8,arrow.size = 5,label.size = 3,alpha = 1) 
+# Visualization of inferred graph with modules colors
+PlotGraphWithModulesObj <- PlotGraphWithModules(Adj_directed,
+                                                PlotDendrogramObj,
+                                                GV=1,
+                                                node.size=8,
+                                                arrow.size = 5,
+                                                label.size = 3,
+                                                alpha = 1) 
 
-#plot 
+# Plot 
 plot(PlotGraphWithModulesObj) 
 
 

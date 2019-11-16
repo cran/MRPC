@@ -12,7 +12,7 @@ Recall = (# edges correctly identified in inferred graph) / (# edges in true gra
 Precision = (# edges correctly identified in inferred graph) / (# edges in inferred graph).  
 }
 \usage{
-RecallPrecision(g1, g2, GV, edge.presence = 1.0, edge.direction = 0.5)
+RecallPrecision(g1, g2, GV, includeGV, edge.presence = 1.0, edge.direction = 0.5)
 }
 
 \arguments{
@@ -25,6 +25,10 @@ Second graph object, from the inferred graph
   \item{GV}{
 The number of genetic variants (SNPs/indels/CNV/eQTL) in the input data. For example, if the data has one genetic variant, first column, then GV = 1, if 2, 1st and 2nd Column, then GV = 2, and so on.
 }
+\item{includeGV}{
+If TRUE, include edges involving genetic variants (GV) when calculating recall and precision. If FALSE, excluded edges involving genetic variants (GV) when calculating recall and precision.
+}
+
 \item{edge.presence}{
 The weight for an edge being present.
 }
@@ -33,7 +37,7 @@ The weight for the edge direction.
 }
 }
 \details{
-We consider it more important to be able to identify the presence of an edge than to also get the direct correct. Therefore, we assign 1 as the default to an edge with the correct direction and 0.5 to an edge with the wrong direction or no direction (Badsha and Fu, 2018; Badsha et al., 2018).
+We consider it more important to be able to identify the presence of an edge than to also get the direct correct. Therefore, we assign 1 as the default to an edge with the correct direction and 0.5 to an edge with the wrong direction or no direction (Badsha and Fu, 2019; Badsha et al., 2018).
 }
 
 \value{
@@ -51,9 +55,9 @@ A \link{list} of object that containing the following:
 }
 
 \references{
-Md Bahadur Badsha and Audrey Qiuyan Fu. Learning causal biological networks with the principle of Mendelian randomization. bioRxiv, 2018. doi:10.1101/171348.
+1. Badsha MB and Fu AQ (2019). Learning causal biological networks with the principle of Mendelian randomization. Frontiers in Genetics, 10(460).
   
-Md Bahadur Badsha, Evan A Martin, and Audrey Qiuyan Fu. MRPC: An R package for accurate inference of causal graphs. arXiv, 2018. arXiv:1806.01899.  
+2. Badsha MB, Martin EA and Fu AQ (2018). MRPC: An R package for accurate inference of causal graphs. arXiv:1806.01899. 
 }
 \author{
 Md Bahadur Badsha (mdbadsha@uidaho.edu)
@@ -66,7 +70,8 @@ Md Bahadur Badsha (mdbadsha@uidaho.edu)
 \examples{
 
 # True model
-# True graph (V1 --> T1 --> T2 --> T3)
+# True graph (V1 --> T1 --> T2 --> T3) 
+# Where V1 is a genetic variant (GV) and T1, T2, and T3 are phenotypes
 tarmat_s1 <- matrix(0,
                     nrow = 4,
                     ncol = 4)
@@ -85,11 +90,12 @@ Truth <- as(tarmat_s1,
             "graphNEL")
 
 # Inferred graph (V1 --> T1 <-- T2 --> T3)
+# Where V1 is a genetic variant (GV) and T1, T2, and T3 are phenotypes
 tarmat_s2 <- matrix(0,
                     nrow = 4,
                     ncol = 4)
                     
-colnames(tarmat_s2) <-c ("V1", "T1", "T2", "T3")
+colnames(tarmat_s2) <- c("V1", "T1", "T2", "T3")
 
 rownames(tarmat_s2) <- colnames(tarmat_s2)
 
@@ -102,10 +108,11 @@ tarmat_s2[3, 4] <- 1
 Inferred <- as(tarmat_s2,
                "graphNEL")
          
-#Recall and Precision
-RecallPrecision(Truth,
-                 Inferred,
-                 GV = 1,
-                 edge.presence = 1.0,
-                 edge.direction = 0.5)
+# Recall and Precision
+Recall_Precision <- RecallPrecision(Truth,
+                                   Inferred,
+                                   GV = 1,
+                                   includeGV = TRUE,
+                                   edge.presence = 1.0,
+                                   edge.direction = 0.5)
 }      

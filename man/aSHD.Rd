@@ -31,9 +31,9 @@ The weight for the edge direction.
 }
 
 \references{
-1.Kalisch, M., Machler, M., Colombo, D., Maathuis, M.H. & Buhlmann, P. Causal Inference Using Graphical Models with the R Package pcalg. J. Stat.Softw. 47, 26 (2012).
+1. Kalisch M, Machler M, Colombo D, Maathuis MH and Buhlmann P (2012). Causal Inference Using Graphical Models with the R Package pcalg. Journal of Statistical Software, 47, 26.
 
-2.Marco Scutari (2010). Learning Bayesian Networks with the bnlearn R Package. Journal of Statistical Software, 35(3), 1-22.
+2. Scutari M (2010). Learning Bayesian Networks with the bnlearn R Package. Journal of Statistical Software, 35(3), 1-22.
 }
 
 \author{
@@ -41,8 +41,7 @@ Md Bahadur Badsha (mdbadsha@uidaho.edu)
 }
 
 \examples{
-# True model
-# True graph (V1 --> T1 --> T2 --> T3)
+# True model (V1 --> T1 --> T2 --> T3)
 tarmat_s1 <- matrix(0,
                     nrow = 4,
                     ncol = 4)

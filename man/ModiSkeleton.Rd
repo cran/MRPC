@@ -5,20 +5,20 @@
 Infer a graph skeleton (undirected graph)
 }
 \description{
-This function infers a graph skeleton (i.e., an undirected graph). It is based on the function \link{skeleton} from the \code{pcalg} package. Both functions perform marginal and conditional indpenendence tests.  However, \code{ModiSkeleton} implements an online false discovery rate (FDR) control method in order to control the overall FDR, whereas \link{skeleton} controls only the type I error rate for each individual test. See details below.
+This function infers a graph skeleton (i.e., an undirected graph). It is based on the function \link{skeleton} from the \code{pcalg} package. Both functions perform marginal and conditional indpenendence tests. However, \code{ModiSkeleton} implements an online false discovery rate (FDR) control method in order to control the overall FDR, whereas \link{skeleton} controls only the type I error rate for each individual test. See details below.
 }
 \usage{
-ModiSkeleton(data, suffStat, FDR, indepTest, labels, p,
-    method = c("stable", "original", "stable.fast"),
-    m.max = Inf, fixedGaps = NULL, fixedEdges = NULL,
-    NAdelete = TRUE, verbose = FALSE)
+ModiSkeleton(data, suffStat, FDR, alpha, indepTest, labels, p,
+             method = c("stable", "original", "stable.fast"),
+             m.max = Inf, fixedGaps = NULL, fixedEdges = NULL,
+             NAdelete = TRUE, FDRcontrol = TRUE, verbose = FALSE)
 }
 
 \arguments{
-Many arguments are similar to those in \link{skeleton} and \link{pc} in the \code{pcalg} package.  Several arguments here are also arguments for the function \link{MRPC}.
+Many arguments are similar to those in \link{skeleton} and \link{pc} in the \code{pcalg} package. Several arguments here are also arguments for the function \link{MRPC}.
 
 \item{data}{
-Data matrix, where the rows are samples and the columns are features (e.g., genetic variants and phenotypes). Columns for genetic varants, if available, appear before other columns for phenotypes (e.g., gene expression).  For example, if there is one genetic variant, then the first column of the data matrix is the genetic variant and the remaining columns are the gene expression data.
+Data matrix, where the rows are samples and the columns are features (e.g., genetic variants (GVs) and phenotypes). Columns are for GVs, if available, appear before other columns for phenotypes (e.g., gene expression). For example, if there is one GV, then the first column of the data matrix is the GV and the remaining columns are the gene expression data.
 }
 
 \item{suffStat}{A list consisting of the correlation matrix of the data and the sample size.  
@@ -27,6 +27,7 @@ Data matrix, where the rows are samples and the columns are features (e.g., gene
 \item{FDR}{
 Desired overall FDR level.
 }
+\item{alpha}{significance level (number in (0,1) for the individual tests.}
 
 \item{indepTest}{Name of the statistical test. It is used to test the independence of x and y given S, where x and y are variables and S is a vector, possibly empty, of variables. The return value of indepTest is the p-value of the test for conditional independence.  Different tests may used for different data types. For example, \code{indepTest='gaussCItest'} for Gaussian data, \code{indepTest='disCItest'} for discrete data, and \code{indepTest='binCItest'} for binary data. See additional details in help(gaussCItest).
 
@@ -51,6 +52,8 @@ Desired overall FDR level.
 
 \item{NAdelete}{(optional) If indepTest returns NA and this option is TRUE, the corresponding edge is deleted. If this option is FALSE, the edge is not deleted.}
 
+\item{FDRcontrol}{(optional) The default is TRUE which is used sequential FDR control method, otherwise used fixed significance level for the individual tests.}
+
 \item{verbose}{
 (optional) If TRUE, detailed output is provided. Default is FALSE for no output details
 }
@@ -71,7 +74,6 @@ An object containing an estimate of the skeleton of the underlying DAG as follow
 \describe{
     
     \item{\code{call}:}{A \link{call} object: the original function call.}
-    
     \item{\code{n}:}{The sample 
     size used to estimate the graph.}
         \item{\code{max.ord}:}{The 
@@ -97,19 +99,20 @@ An object containing an estimate of the skeleton of the underlying DAG as follow
   }
 }
 \references{
-1.Badsha, M. B. Mollah, M. N. Jahan, N. and Kurata, H. (2013). Robust complementary hierarchical clustering for gene expression data analysis by beta-divergence. J Biosci Bioeng 116(3): 397-407.
+1. Badsha MB, Mollah MN, Jahan N and Kurata H (2013). Robust complementary hierarchical clustering for gene expression data analysis by beta-divergence. J Biosci Bioeng 116(3): 397-407.
 
-2. Benjamini, Y. and Y Hochberg(1995) Controlling the false discovery rate: a practical and powerful approach to multiple testing, J. R. Statist. Soc. B, B, 57, 289-300.
+2. Benjamini Y and Hochberg Y (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing, J. R. Statist. Soc. B, B, 57, 289-300.
 
-3. Javanmard and Montanari (March 5, 2015) On Online Control of False Discovery Rate. arXiv:150206197 [statME].
+3. Javanmard A and Montanari A (2015). On Online Control of False Discovery Rate. arXiv:150206197 [statME].
 
-4. Kalisch, M. and Buhlmann, P. (2007) Estimating High-Dimensional Directed Acyclic Graphs with the PC-Algorithm, Journal of Machine Learning Research, 8, 613-636.
+4. Kalisch M and Buhlmann P (2007). Estimating High-Dimensional Directed Acyclic Graphs with the PC-Algorithm, Journal of Machine Learning Research, 8, 613-636.
 
-5.Marco Scutari (2010). Learning Bayesian Networks with the bnlearn R Package. Journal of Statistical Software, 35(3), 1-22.
+5. Scutari M (2010). Learning Bayesian Networks with the bnlearn R Package. Journal of Statistical Software, 35(3), 1-22.
 
-6.Tsamardinos, I. Brown, L.E. and Aliferis, C.F. (2006). The Max-Min Hill-Climbing Bayesian Network Structure Learning Algorithm. JMLR 65, 31-78.
+6. Spirtes P, Glymour C and Scheines R (2000). Causation, Prediction, and Search, 2nd edition. The MIT Press.
 
-7. Spirtes, P. Glymour, C and Scheines, R (2000). Causation, Prediction, and Search, 2nd edition. The MIT Press.
+7.Tsamardinos I, Brown LE and Aliferis CF (2006). The Max-Min Hill-Climbing Bayesian Network Structure Learning Algorithm. Machine Learning, 65 (1), 31-78.
+
 }
 \author{
 Md Bahadur Badsha (mdbadsha@uidaho.edu)
@@ -119,9 +122,6 @@ Md Bahadur Badsha (mdbadsha@uidaho.edu)
  \link{MRPC}; \link{EdgeOrientation}; \link{SimulateData}.
 }
 \examples{
-# Load packages
-library(pcalg)   # library for multiple pc algorithms
-library(bnlearn) # library for Bayesian network inference algorithms
 
 # Load predefined simulated data
 # Data pre-processing
@@ -134,22 +134,27 @@ library(bnlearn) # library for Bayesian network inference algorithms
 # FDR and mFDR remains below 0.05.
 
 # Model 1
-# Estimate Skeleton
-data <- simu_data_M1 # data for model 1
+
+data <- simu_data_M1 # load data for model 1
 n <- nrow(data)      # Number of row
 V <- colnames(data)  # Column names
 
-Rcor_R <- RobustCor(data,
-                    0.005) # Robust correlation (Beta = 0.005)
-                    
-suffStat_R <- list(C = Rcor_R$RR, n = n)
+# Calculate Pearson correlation
+suffStat_C <- list(C = cor(data),
+                   n = n)
 
-Skel.fit <- ModiSkeleton(data, suffStat_R,
-                         FDR = 0.05, indepTest = 'gaussCItest',
-                         labels = V, verbose = TRUE)
+# Infer a graph skeleton
+Skel.fit <- ModiSkeleton(data, 
+                         suffStat = suffStat_C,
+                         FDR = 0.05, 
+                         alpha = 0.05, 
+                         indepTest = 'gaussCItest',
+                         labels = V, 
+                         FDRcontrol = TRUE, 
+                         verbose = TRUE)
 
 # Plot the results
-# Show estimated skeleton
+
 plot(Skel.fit@graph,
      main ="Estimated Skeleton")
 

@@ -1,4 +1,6 @@
-CutModules=function (x, cuts, m = 150, g, levels.mean = FALSE, digits, minmax = TRUE,
+#This is function to cut a numeric variable into intervals
+
+CutModules <- function (x, cuts, m = 150, g, levels.mean = FALSE, digits, minmax = TRUE,
                           oneval = TRUE, onlycuts = FALSE)
 {
   method <- 1
@@ -18,6 +20,7 @@ CutModules=function (x, cuts, m = 150, g, levels.mean = FALSE, digits, minmax = 
       g <- max(1, floor(nnm/m))
     if (g < 1)
       stop("g must be >=1, m must be positive")
+    
     options(digits = 15)
     n <- table(x)
     xx <- as.double(names(n))
@@ -105,7 +108,7 @@ CutModules=function (x, cuts, m = 150, g, levels.mean = FALSE, digits, minmax = 
       brack <- rep("]", l - 1)
       brack[l - 1] <- "]"
       fmt <- format(cuts)
-      fmt=as.numeric(fmt)
+      fmt <- as.numeric(fmt)
       labs <- paste("[",1+fmt[1:(l - 1)], ",",fmt[2:l],
                     brack, sep = "")
       if (oneval) {

@@ -1,7 +1,8 @@
-#This is the part 1 of MRPC to draw the undirected graph
-ModiSkeleton<-function (data,suffStat,FDR, indepTest = c("gaussCItest", "disCItest","citest"), labels, p, method = c("stable",
+#This is the step 1 of MRPC to draw the undirected graph
+
+ModiSkeleton <- function (data,suffStat,FDR,alpha,indepTest = c("gaussCItest", "disCItest","citest"), labels, p, method = c("stable",
                                                              "original", "stable.fast"), m.max = Inf, fixedGaps = NULL,
-                  fixedEdges = NULL, NAdelete = TRUE, verbose = FALSE)
+                  fixedEdges = NULL, NAdelete = TRUE, FDRcontrol=TRUE,verbose = FALSE)
 {
   cl <- match.call()
   if (!missing(p))
@@ -40,9 +41,9 @@ ModiSkeleton<-function (data,suffStat,FDR, indepTest = c("gaussCItest", "disCIte
     sepset <- lapply(seq_p, function(.) vector("list", p))
     pMax <- matrix(-Inf, nrow = p, ncol = p)
     m <- 0L    #Current test number
-    R<-0L      #Rejection number
-    Alpha <-0L
-    pval<-0L
+    R <- 0L      #Rejection number
+    Alpha <- 0L
+    pval <- 0L
 
     diag(pMax) <- 1
     done <- FALSE
@@ -72,8 +73,8 @@ ModiSkeleton<-function (data,suffStat,FDR, indepTest = c("gaussCItest", "disCIte
         if (G[y, x] && !fixedEdges[y, x]) {
           nbrsBool <- if (method == "stable")
           
-          nbrsBool1=G.l[[x]]
-          nbrsBool2=G.l[[y]] 
+          nbrsBool1 <- G.l[[x]]
+          nbrsBool2 <- G.l[[y]] 
           # G.l[[x]]
           #else G[, x]
           nbrsBool1[y] <- FALSE
@@ -83,7 +84,7 @@ ModiSkeleton<-function (data,suffStat,FDR, indepTest = c("gaussCItest", "disCIte
           nbrsBool2[x] <- FALSE
           nbrs_y <- seq_p[nbrsBool2]
           
-          nbrs<-unique(union(nbrs_x,nbrs_y))
+          nbrs <- unique(union(nbrs_x,nbrs_y))
           
           #G.l[[x]]
           #else G[, x]
@@ -97,32 +98,32 @@ ModiSkeleton<-function (data,suffStat,FDR, indepTest = c("gaussCItest", "disCIte
             repeat {
               n.edgetests[ord1] <- n.edgetests[ord1] +
                 1
-              m=m+1  #Total number of the test
+              m <- m+1  #Total number of the test
 
               ##Start to calculate P-value using ci.test and gaussCItest
               
               if(indepTest=="citest") #if indepTest=ci.test
                               {   
-                                x=data[,ind[i,1]]
-                                y=data[,ind[i,2]]
-                                z=data[,nbrs[S]]
+                                x <- data[,ind[i,1]]
+                                y <- data[,ind[i,2]]
+                                z <- data[,nbrs[S]]
                                 if (length(S)==0) {
-                                    P<- ci.test(x, y)
-                                    pval[m]=P$p.value
+                                    P <- ci.test(x, y)
+                                    pval[m] <- P$p.value
                                 } else {
-                                    P<- ci.test(x, y, z)
-                                    pval[m]=P$p.value  #P-Value
+                                    P <- ci.test(x, y, z)
+                                    pval[m] <- P$p.value  #P-Value
                                 }
                                 x <- ind[i, 1]
                                 y <- ind[i, 2]
               }
               if(indepTest=="gaussCItest") #if indepTest=gaussCItest
                 {
-                pval[m]<- gaussCItest(x, y, nbrs[S], suffStat)
+                pval[m] <- gaussCItest(x, y, nbrs[S], suffStat)
               }
               if(indepTest=="disCItest") #if indepTest=disCItest
               {
-                pval[m]<- disCItest(x, y, nbrs[S], suffStat)
+                pval[m] <- disCItest(x, y, nbrs[S], suffStat)
               }
                                    
               #End to calculate P-value using ci.test and gaussCItest
@@ -137,14 +138,20 @@ ModiSkeleton<-function (data,suffStat,FDR, indepTest = c("gaussCItest", "disCIte
             cat("Test number =", m, "\n")
             cat("pval =", pval[m], "\n")
             
-            Alpha=SeqFDR(m,FDR,a=2,R) #Alpha valued from sequential FDR test
+            if (FDRcontrol){ #if want to control sequential FDR 
+              Alpha <- SeqFDR(m,FDR,a=2,R) #Alpha valued from sequential FDR test
+            }
+            else
+            {
+              Alpha <- alpha #if want to use fixed significance level 
+            }
             cat("Alpha value =", Alpha, "\n")
 
             if (pval[m]<= Alpha) {  #Reject H0 (H0:nodes are independent)
-              R[m]=1
+              R[m] <- 1
               cat("Since pval<Alpha,test is rejected: Nodes are dependent", "\n")
             } else {
-              R[m]=0  #Accept H0
+              R[m] <- 0  #Accept H0
               cat("Since pval>Alpha,test is accepted:Nodes are independent", "\n")
             }
             if (pval[m]>= Alpha) {
