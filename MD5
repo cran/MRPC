@@ -1,4 +1,4 @@
-87be64628cbd37d21447b3daa2eb489c *DESCRIPTION
+146864ed2e30c5ccb9daedc65a725fb3 *DESCRIPTION
 f5ae625b4829811dfc403d666ca4ac8e *NAMESPACE
 e89302276c7c6e400ddcd9af2cb4bf36 *R/AdjustMatrix.R
 08e634387f7bd337975b26d4f024b8ce *R/Classes.R
@@ -7,7 +7,7 @@ e89302276c7c6e400ddcd9af2cb4bf36 *R/AdjustMatrix.R
 bdd6b8d1d385cca188db626bb2d1d6eb *R/CutModules.R
 127c72717e90aeb800ad6f279969a3c8 *R/EdgeOrientation.R
 081d7ac9269afab015c97728a5cdf0ae *R/IdentifyAssociatedPCs.R
-cfa5219aa43a28916526dcd471d131aa *R/MRPC.R
+8d0067e54e9d83f3c537695fb870da4d *R/MRPC.R
 b2edca3b453ea2d7cf39c61eb7a65817 *R/ModiSkeleton.R
 355dc6db63f79bb57c4794cd7a0fb80b *R/PlotDendrogram.R
 9f21b117c2cd91be3d1eb6e525e341e8 *R/PlotGraphWithModules.R
@@ -46,7 +46,7 @@ e46c77df5f292cfcb0fbf4510e8fd3bf *man/CutModules.Rd
 a32c08b1b01a649d144b0b79251d6ef7 *man/Data_GEUVADIS.Rd
 5079a7a67685b77273b709e0fd6468ad *man/EdgeOrientation.Rd
 2766e967d82fd690cbee98e696fcac8d *man/IdentifyAssociatedPCs.Rd
-7c60715fd6406c9ee03c4a315750edf2 *man/MRPC.Rd
+2de3dee2f2a12cde9dd1ff43ed9b89de *man/MRPC.Rd
 7acbe5c2536a6ee12a7bcbf21ab1fd6e *man/MRPCclass.Rd
 4ec4ff4e3de46ec8b6ed894797122209 *man/MRPCtruth.Rd
 16a6058edec69eef1a6df629bb09a739 *man/ModiSkeleton.Rd

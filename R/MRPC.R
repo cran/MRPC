@@ -6,6 +6,11 @@ MRPC <- function (data,suffStat,GV,FDR=0.05,alpha=0.05,indepTest = c("gaussCItes
                solve.confl = FALSE, FDRcontrol=TRUE,verbose = FALSE)
 {
   cl <- match.call()
+  
+  if(indepTest=="disCItest") {
+    suffStat <- list (dm = data, adaptDF = FALSE, n.min = 1000)
+  }
+  
   if (!missing(p))
     stopifnot(is.numeric(p), length(p <- as.integer(p)) ==
                 1, p >= 2)
