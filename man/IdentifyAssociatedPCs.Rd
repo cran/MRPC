@@ -39,7 +39,7 @@ A \link{list} of object that containing the following:
 2. Badsha MB, Martin EA and Fu AQ (2018). MRPC: An R package for accurate inference of causal graphs. arXiv:1806.01899.
 }
 \author{
-Md Bahadur Badsha (mbbadshar@gmail.com)
+Md. Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \seealso{

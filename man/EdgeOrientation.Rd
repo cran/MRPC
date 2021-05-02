@@ -18,8 +18,7 @@ EdgeOrientation(gInput, GV, suffStat, FDR, alpha,indepTest,
 }
 \item{GV}{The number of genetic variants (SNPs/indels/CNV/eQTL) in the input data matrix. For example, if the data has one genetic variant, first column, then GV = 1, if 2, 1st and 2nd Column, then GV = 2, and so on.
 }
-\item{suffStat}{A \link{list} of sufficient statistics containing all necessary elements for the conditional independence tests in the function indepTest for gaussCItest. The sufficient statistics consist of the correlation matrix of the data and the sample size.
-}
+\item{suffStat}{A list of sufficient statistics. When the data is continuous or can be viewed as continuous, this list contains the correlation matrix of the data and the sample size, which are the necessary elements for the conditional independence tests in gaussCItest. When the data is discrete, this list contains the entire dataset.} 
 
 \item{FDR}{
 False discovery rate (number between 0 and 1). If FDR = 0.05, this ensures that the FDR and mFDR remains below 0.05.}
@@ -81,7 +80,7 @@ An object that contains an estimate of the equivalence class of the underlying D
 
 
 \author{
-Md Bahadur Badsha (mbbadshar@gmail.com)
+Md. Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \references{

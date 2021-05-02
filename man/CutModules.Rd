@@ -49,6 +49,6 @@ Set to TRUE to only return the vector of computed cuts. This consists of the int
 Vector
 }
 \author{
-Md Bahadur Badsha (mbbadshar@gmail.com)
+Md. Bahadur Badsha (mbbadshar@gmail.com)
 }
 

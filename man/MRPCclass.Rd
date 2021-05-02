@@ -89,7 +89,7 @@ summary.
   }
 }
 \author{
-Md Bahadur Badsha (mbbadshar@gmail.com)
+Md. Bahadur Badsha (mbbadshar@gmail.com)
 }
 \seealso{
   \link{MRPC}, \link{ModiSkeleton}

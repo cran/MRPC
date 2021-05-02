@@ -15,7 +15,7 @@ Matrix
 }
 
 \author{
-Md Bahadur Badsha (mbbadshar@gmail.com)
+Md. Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \seealso{

@@ -39,7 +39,7 @@ A list that containing the numeric data matrix and components of a graph.
 }
 
 \author{
-Md Bahadur Badsha (mbbadshar@gmail.com)
+Md. Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \examples{
@@ -47,19 +47,20 @@ Md Bahadur Badsha (mbbadshar@gmail.com)
 # Continuous data with genetic varitant (GV)
 # load the data
 data("data_examples")  
+data <- data_examples$simple$cont$withGV$data
 
 # Extract the sample size
-n <- nrow(data_examples$simple$cont$withGV$data)  
+n <- nrow(data)  
 
 # Extract the node/column names
-V <- colnames(data_examples$simple$cont$withGV$data)  
+V <- colnames(data)  
 
 # Calculate Pearson correlation
-suffStat_C <- list(C = cor(data_examples$simple$cont$withGV$data),
+suffStat_C <- list(C = cor(data),
                    n = n)
 
 # Infer the graph by MRPC
-data.mrpc.cont.withGV <- MRPC(data = data_examples$simple$cont$withGV$data,
+data.mrpc.cont.withGV <- MRPC(data,
                               suffStat = suffStat_C, 
                               GV = 2,
                               FDR = 0.05, 
@@ -80,19 +81,20 @@ plot(data.mrpc.cont.withGV,
 # Continuous data without genetic information
 # load the data
 data("data_examples")    
+data <- data_examples$simple$cont$withoutGV$data
 
 # Extract the sample size
-n <- nrow(data_examples$simple$cont$withoutGV$data) 
+n <- nrow(data) 
 
 # Extract the node/column names
-V <- colnames(data_examples$simple$cont$withoutGV$data)
+V <- colnames(data)
 
 # Calculate Pearson correlation
-suffStat_C <- list(C = cor(data_examples$simple$cont$withoutGV$data),
+suffStat_C <- list(C = cor(data),
                    n = n)
 
 # Infer the graph by MRPC
-data.mrpc.cont.withoutGV <- MRPC(data = data_examples$simple$cont$withoutGV$data,
+data.mrpc.cont.withoutGV <- MRPC(data,
                                  suffStat = suffStat_C, 
                                  GV = 0,
                                  FDR = 0.05,
@@ -112,23 +114,25 @@ plot(data.mrpc.cont.withoutGV,
 # Discrete data with genetic information
 # load the data
 data("data_examples")     
+data <- data_examples$simple$disc$withGV$data
 
 # Extract the sample size
-n <- nrow(data_examples$simple$disc$withGV$data)  
+n <- nrow(data)  
 
 # Extract the node/column names
-V <- colnames(data_examples$simple$disc$withGV$data)
+V <- colnames(data)
 
-# Calculate Pearson correlation
-suffStat_C <- list(C = cor(data_examples$simple$disc$withGV$data),
-                   n = n)
+# need different suffStat for discrete data
+suffStat <- list (dm = data, 
+                  adaptDF = FALSE, 
+                  n.min = 1000)
 
 # Infer the graph by MRPC
-data.mrpc.disc.withGV <- MRPC(data = data_examples$simple$disc$withGV$data,
-                              suffStat = suffStat_C, 
+data.mrpc.disc.withGV <- MRPC(data,
+                              suffStat = suffStat, 
                               GV = 1,
                               FDR = 0.05, 
-                              indepTest = 'gaussCItest',
+                              indepTest = 'disCItest',
                               labels = V, 
                               FDRcontrol = TRUE,
                               verbose = FALSE)
@@ -144,23 +148,25 @@ plot(data.mrpc.disc.withGV,
 # Discrete data without genetic information
 # load the data
 data("data_examples")    
+data <- data_examples$simple$disc$withoutGV$data
 
 # Extract the sample size
-n <- nrow (data_examples$simple$disc$withoutGV$data)  
+n <- nrow (data)  
 
 # Extract the node/column names
-V <- colnames(data_examples$simple$disc$withoutGV$data)   
+V <- colnames(data)   
 
-# Calculate Pearson correlation
-suffStat_C <- list(C = cor(data_examples$simple$disc$withoutGV$data),
-                   n = n)
+# need different suffStat for discrete data
+suffStat <- list (dm = data, 
+                  adaptDF = FALSE, 
+                  n.min = 1000)
 
 # Infer the graph by MRPC
-data.mrpc.disc.withoutGV <- MRPC(data = data_examples$simple$disc$withoutGV$data,
-                                 suffStat = suffStat_C, 
-                                 GV = 1,
+data.mrpc.disc.withoutGV <- MRPC(data,
+                                 suffStat = suffStat, 
+                                 GV = 0,
                                  FDR = 0.05, 
-                                 indepTest = 'gaussCItest',
+                                 indepTest = 'disCItest',
                                  labels = V, 
                                  FDRcontrol = TRUE,
                                  verbose = FALSE)
