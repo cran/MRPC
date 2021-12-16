@@ -2,7 +2,7 @@
 \alias{data_examples}
 
 \title{
-Example data under a simple and complex models
+Example data under simple and complex models
 }
 \description{
 Example data under the simple and complex graphs. Data may be continuous or discrete.
@@ -39,10 +39,12 @@ A list that containing the numeric data matrix and components of a graph.
 }
 
 \author{
-Md. Bahadur Badsha (mbbadshar@gmail.com)
+Md Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \examples{
+
+\donttest{
 
 # Continuous data with genetic varitant (GV)
 # load the data
@@ -60,13 +62,13 @@ suffStat_C <- list(C = cor(data),
                    n = n)
 
 # Infer the graph by MRPC
-data.mrpc.cont.withGV <- MRPC(data,
+data.mrpc.cont.withGV <- MRPC(data = data,
                               suffStat = suffStat_C, 
                               GV = 2,
                               FDR = 0.05, 
                               indepTest = 'gaussCItest',
                               labels = V,
-                              FDRcontrol = TRUE,
+                              FDRcontrol = 'LOND',
                               verbose = FALSE)
 # Plot the results
 par(mfrow = c(1, 2))
@@ -94,13 +96,13 @@ suffStat_C <- list(C = cor(data),
                    n = n)
 
 # Infer the graph by MRPC
-data.mrpc.cont.withoutGV <- MRPC(data,
+data.mrpc.cont.withoutGV <- MRPC(data = data,
                                  suffStat = suffStat_C, 
                                  GV = 0,
                                  FDR = 0.05,
                                  indepTest = 'gaussCItest',
                                  labels = V, 
-                                 FDRcontrol = TRUE,
+                                 FDRcontrol = 'LOND',
                                  verbose = FALSE)
 # Plot the results
 par(mfrow = c(1, 2))
@@ -122,19 +124,16 @@ n <- nrow(data)
 # Extract the node/column names
 V <- colnames(data)
 
-# need different suffStat for discrete data
-suffStat <- list (dm = data, 
-                  adaptDF = FALSE, 
-                  n.min = 1000)
+suffStat_C <- list (dm = data, adaptDF = FALSE, n.min = 1000)
 
 # Infer the graph by MRPC
-data.mrpc.disc.withGV <- MRPC(data,
-                              suffStat = suffStat, 
+data.mrpc.disc.withGV <- MRPC(data = data,
+                              suffStat = suffStat_C, 
                               GV = 1,
                               FDR = 0.05, 
                               indepTest = 'disCItest',
                               labels = V, 
-                              FDRcontrol = TRUE,
+                              FDRcontrol = 'LOND',
                               verbose = FALSE)
 # Plot the results
 par (mfrow = c(1, 2))
@@ -156,19 +155,16 @@ n <- nrow (data)
 # Extract the node/column names
 V <- colnames(data)   
 
-# need different suffStat for discrete data
-suffStat <- list (dm = data, 
-                  adaptDF = FALSE, 
-                  n.min = 1000)
+suffStat_C <- list (dm = data, adaptDF = FALSE, n.min = 1000)
 
 # Infer the graph by MRPC
-data.mrpc.disc.withoutGV <- MRPC(data,
-                                 suffStat = suffStat, 
-                                 GV = 0,
+data.mrpc.disc.withoutGV <- MRPC(data = data,
+                                 suffStat = suffStat_C, 
+                                 GV = 1,
                                  FDR = 0.05, 
                                  indepTest = 'disCItest',
                                  labels = V, 
-                                 FDRcontrol = TRUE,
+                                 FDRcontrol = 'LOND',
                                  verbose = FALSE)
 # Plot the results
 par(mfrow = c(1, 2))
@@ -203,5 +199,34 @@ PlotGraphWithModulesObj <- PlotGraphWithModules(Adj_directed,
                                                 label.size = 3,
                                                 alpha = 1) 
 # plot 
-plot(PlotGraphWithModulesObj)  
+plot(PlotGraphWithModulesObj)
+
+# Run MRPC on the complex data set with ADDIS as the FDR control method.
+data <- data_examples$complex$cont$withGV$data
+n <- nrow (data)        # Number of rows
+V <- colnames(data)     # Column names
+
+# Calculate Pearson correlation
+suffStat_C <- list(C = cor(data),
+                   n = n)
+
+# Infer the graph by MRPC
+MRPC.addis <- MRPC(data,
+                   suffStat = suffStat_C,
+                   GV = 14,
+                   FDR = 0.05,
+                   indepTest = 'gaussCItest',
+                   labels = V,
+                   FDRcontrol = 'ADDIS',
+                   tau = 0.5,
+                   lambda = 0.25,
+                   verbose = FALSE)
+                   
+# Plot the true and inferred graphs.
+par(mfrow = c(1, 2))
+plot(data_examples$complex$cont$withGV$graph,
+     main = 'True graph')
+plot(MRPC.addis,
+     main = 'Inferred graph')
+}
 }

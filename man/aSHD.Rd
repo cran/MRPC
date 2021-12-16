@@ -37,7 +37,7 @@ The weight for the edge direction.
 }
 
 \author{
-Md. Bahadur Badsha (mbbadshar@gmail.com)
+Md Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \examples{

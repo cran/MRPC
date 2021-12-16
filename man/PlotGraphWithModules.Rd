@@ -51,7 +51,7 @@ Other arguments passed to \link{ggnet2}.
 }
 
 \author{
-Md. Bahadur Badsha (mbbadshar@gmail.com)
+Md Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \seealso{

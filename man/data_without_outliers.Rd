@@ -18,6 +18,7 @@ Md Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \examples{
+\donttest{
 # Load packages
 
 library(MRPC)     # MRPC
@@ -56,7 +57,7 @@ MRPC.fit_withoutoutliers <- MRPC (data_without_outliers,
                                   FDR = 0.05, 
                                   indepTest ='gaussCItest', 
                                   labels = V, 
-                                  FDRcontrol = TRUE, 
+                                  FDRcontrol = 'LOND', 
                                   verbose = FALSE)
 
 # Infer the graph by pc with Pearson correlation
@@ -109,4 +110,5 @@ graphviz.plot (pc.stable_withoutoutliers, main = "pc.stable")
 graphviz.plot (mmpc_withoutoutliers, main = "mmpc")
 graphviz.plot (mmhc_withoutoutliers, main = "mmhc")
 graphviz.plot (hc_withoutoutliers, main = "hc")
+}
 }

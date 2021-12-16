@@ -13,10 +13,11 @@ Matrix
 }
 
 \author{
-Md. Bahadur Badsha (mbbadshar@gmail.com)
+Md Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \examples{
+\donttest{
 # Load packages
 
 library(MRPC)     # MRPC
@@ -56,7 +57,7 @@ MRPC.fit_withoutoutliers <- MRPC (data_without_outliers,
                                   FDR = 0.05, 
                                   indepTest ='gaussCItest', 
                                   labels = V, 
-                                  FDRcontrol = TRUE, 
+                                  FDRcontrol = 'LOND', 
                                   verbose = FALSE)
 
 # Infer the graph by pc 
@@ -111,7 +112,7 @@ MRPC.fit_withoutliers_C2 <- MRPC (data_with_outliers,
                                   FDR = 0.05, 
                                   indepTest ='gaussCItest', 
                                   labels = V, 
-                                  FDRcontrol = TRUE, 
+                                  FDRcontrol = 'LOND', 
                                   verbose = FALSE)
 
 # Infer the graph by pc
@@ -168,7 +169,7 @@ MRPC.fit_withoutliers_R1 <- MRPC (data_with_outliers,
                                   FDR = 0.05, 
                                   indepTest = 'gaussCItest', 
                                   labels = V, 
-                                  FDRcontrol = TRUE, 
+                                  FDRcontrol = 'LOND', 
                                   verbose = FALSE)
 
 # Infer the graph by pc with robust correlation
@@ -212,4 +213,5 @@ par (mfrow = c (1,2))
 plot (MRPC.fit_withoutliers_R1, main = "MRPC")
 plot (pc.fit_withoutliers_R1, main = "pc")
 
+}
 }
