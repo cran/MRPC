@@ -9,7 +9,8 @@ This function performs the second step of the \link{MRPC} algorithm where it det
 }
 \usage{
 EdgeOrientation(gInput, GV, suffStat, FDR, alpha, indepTest, 
-                FDRcontrol, tau = 0.5, lambda = 0.25, verbose = FALSE)
+                FDRcontrol = c("LOND", "ADDIS", "NONE"), 
+                tau = 0.5, lambda = 0.25, verbose = FALSE)
 
 }
 
@@ -22,13 +23,13 @@ EdgeOrientation(gInput, GV, suffStat, FDR, alpha, indepTest,
 }
 
 \item{FDR}{
-False discovery rate (number between 0 and 1). If FDR = 0.05, this ensures that the FDR and mFDR remains below 0.05.}
+False discovery rate (number between 0 and 1). If FDR = 0.05, this ensures that the FDR remains below 0.05.}
                 
 \item{alpha}{Significance level (number in (0,1) for the individual tests.}
 
 \item{indepTest}{A \link{function} for testing conditional independence. It is used to test the conditional independence of x and y given S, called as indepTest(x, y, S, suffStat). Where, x and y are variables, and S is a vector, possibly empty, of variables. suffStat is a list, see the argument above. The return value of indepTest is the p-value of the test for conditional independence. There are three options for different data types, for example, Gaussian data = gaussCItest, discrete data = disCItest and Binary data = binCItest. See help(gaussCItest)}
 
-\item{FDRcontrol}{(optional) A character string specifying the method used for online FDR control. The two options are either LOND (Javanmard and Montanari, 2015) or ADDIS (Tian and Ramdas, 2019). If this is left blank a fixed significance level, alpha, will be used for each test.}
+\item{FDRcontrol}{A character string specifying whether online FDR control should be applied, and if so, what method to use. The two FDR control options are "LOND" (Javanmard and Montanari, 2015) or "ADDIS" (Tian and Ramdas, 2019). If "NONE" is specified, the type I error rate "alpha" will be used for each test.}
 
 \item{tau}{A number between 0 and 1. This value is used to determine if a p-value will be considered for testing. For example, if a p-value is greater than tau then it is discarded and no test will be performed.}
 
@@ -38,7 +39,7 @@ False discovery rate (number between 0 and 1). If FDR = 0.05, this ensures that 
 }
                                  
 \details{
-The orientation of the edge directions based on the principle of Mendelian randomization involves four cases, which are four of the five basic models in Badsha and Fu, 2019 and Badsha et al., 2018. For example, we consider x to be a genetic variant, y and z the phenotype nodes.
+The orientation of the edge directions based on the principle of Mendelian randomization involves four cases, which are four of the five basic models in Badsha and Fu (2019) and Badsha et al.(2021). For example, we consider x to be a genetic variant, y and z the phenotype nodes.
 
 The four cases are as follows:
 
@@ -100,9 +101,9 @@ Md Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \references{
-1. Badsha MB and Fu AQ (2019). Learning causal biological networks with the principle of Mendelian randomization. Frontiers in Genetics, 10(460).
+1. Badsha MB and Fu AQ (2019). Learning causal biological networks with the principle of Mendelian randomization. Frontiers in Genetics, 10:460.
 
-2. Badsha MB, Martin EA and Fu AQ (2018). MRPC: An R package for accurate inference of causal graphs. arXiv arXiv:1806.01899.
+2. Badsha MB, Martin EA and Fu AQ (2021). MRPC: An R Package for inference of causal graphs. Frontiers in Genetics, 10:651812.
 
 3. Javanmard A and Montanari A (2015). On Online Control of False Discovery Rate. arXiv:150206197 [statME].
 
@@ -115,16 +116,13 @@ Md Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \examples{
-
-# Load predefined data
-# Data pre-processing
-
-# The 1st column of the input matrix will be the
-# genetic variant and the remaining columns are the gene expression data.
-
-# Model 1
+\dontrun{
+# Model 1 (mediation)
 Truth <- MRPCtruth$M1   # Truth for model 1
-data <- simu_data_M1    # data load for model 1
+
+# The 1st column of the data matrix is a genetic variant
+# and the remaining columns are gene expression nodes.
+data <- simu_data_M1 # load data for model 1
 n <- nrow (data)        # Number of row
 V <- colnames(data)     # Column names
 
@@ -185,5 +183,6 @@ plot(Edge_orientation,
 # Truth <- MRPCtruth$Layered
 # data <- simu_data_layered
 
+}
 }
 

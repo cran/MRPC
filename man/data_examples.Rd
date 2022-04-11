@@ -43,14 +43,11 @@ Md Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \examples{
-
-\donttest{
-
+\dontrun{
 # Continuous data with genetic varitant (GV)
 # load the data
 data("data_examples")  
 data <- data_examples$simple$cont$withGV$data
-
 # Extract the sample size
 n <- nrow(data)  
 
@@ -84,7 +81,7 @@ plot(data.mrpc.cont.withGV,
 # load the data
 data("data_examples")    
 data <- data_examples$simple$cont$withoutGV$data
-
+  
 # Extract the sample size
 n <- nrow(data) 
 
@@ -117,7 +114,7 @@ plot(data.mrpc.cont.withoutGV,
 # load the data
 data("data_examples")     
 data <- data_examples$simple$disc$withGV$data
-
+  
 # Extract the sample size
 n <- nrow(data)  
 
@@ -148,7 +145,7 @@ plot(data.mrpc.disc.withGV,
 # load the data
 data("data_examples")    
 data <- data_examples$simple$disc$withoutGV$data
-
+  
 # Extract the sample size
 n <- nrow (data)  
 
@@ -229,4 +226,4 @@ plot(data_examples$complex$cont$withGV$graph,
 plot(MRPC.addis,
      main = 'Inferred graph')
 }
-}
+  }

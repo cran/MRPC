@@ -5,7 +5,7 @@
 Comparison of inference accuracy of different methods on data with and without a v-structure
 }
 \description{
-This function compares inference accuracy on graphs with and without a v-structure in terms of recall and precision by six methods \link{MRPC}, \link{pc}, \link{pc.stable}, \link{mmpc}, \link{mmhc}, and \link{hc}, across multiple data sets. See details in  Badsha and Fu, 2019 and Badsha et al., 2021.
+This function compares inference accuracy on graphs with and without a v-structure in terms of recall and precision by six methods \link{MRPC}, \link{pc}, \link{pc.stable}, \link{mmpc}, \link{mmhc}, and \link{hc}, across multiple data sets. See details in Badsha and Fu (2019) and Badsha et al.(2021).
 }
 \usage{
 CompareMethodsVStructure(N, signal, model, includeGV, ita)
@@ -33,9 +33,9 @@ The output is a matrix, where the rows are the six methods: MRPC, pc, pc.stable,
 Matrix
 }
 \references{
-1. Badsha MB and Fu AQ (2019). Learning causal biological networks with the principle of Mendelian randomization. Frontiers in Genetics, 10(460).
+1. Badsha MB and Fu AQ (2019). Learning causal biological networks with the principle of Mendelian randomization. Frontiers in Genetics, 10:460.
 
-2. Badsha MB, Martin EA and Fu AQ (2021). An R Package for Inference of Causal Graphs. Frontiers in Genetics, 10(651812).
+2. Badsha MB, Martin EA and Fu AQ (2021). MRPC: An R package for inference of causal graphs. Frontiers in Genetics, 10:651812.
   
 3. Kalisch M, Machler M, Colombo D, Maathuis MH and Buhlmann P (2012). Causal Inference Using Graphical Models with the R Package pcalg. Journal of Statistical Software, 47, 26.
 
@@ -50,18 +50,27 @@ Md Bahadur Badsha (mbbadshar@gmail.com)
 \link{RecallPrecision}: Performance evaluation in terms of recall and precision.
 }
 \examples{
-\donttest{
-# For demonstration purposes, only 10 data sets 
-# with a sample size of 100 and signal is 1, are simulated here.
+  
+ \donttest{
+# Load the libraries
+library(MRPC)     # MRPC
+library(pcalg)    # pc
+library(bnlearn)  # pc.stable, mmpc, mmhc and hc
 
-# Comparison of inference accuracy on model 1 without a v-structure 
+# For demonstration purposes, only 10 data sets 
+# are simulated here 
+# with sample size N = 100 and signal = 1
+
+# Comparison of inference accuracy on 
+# model 1 (mediation)
 Result1 <- CompareMethodsVStructure(N = 100, 
                                     signal = 1.0,
                                     'model1', 
                                     includeGV = TRUE,
                                     ita = 10)
 
-# Comparison of inference accuracy with a v-structure
+# Comparison of inference accuracy on 
+# model 2 (v-structure)
 Result2 <- CompareMethodsVStructure(N = 100, 
                                     signal = 1.0,
                                     'model2',
@@ -69,4 +78,4 @@ Result2 <- CompareMethodsVStructure(N = 100,
                                     ita = 10)
 
 }
-}
+  }

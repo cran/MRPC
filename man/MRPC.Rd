@@ -4,18 +4,12 @@
 Infer a causal network using the MRPC algorithm
 }
 \description{
-This function is used to infer a causal network (or a causal graph) with directed and undirected edges from observational data. It implements the MRPC (PC with the principle of Mendelian randomization) algorithm described in Badsha and Fu, 2019 and Badsha et al., 2021, and the implementation is based on the \link{pc} algorithm in the \code{pcalg} package. The MRPC algorithm contains four major updates over the \link{pc} algorithm: (i) incorporating a sequential testing method to control the False Discovery Rate (FDR), (ii) improved v-structure identification; (iii) allowing for calculation of robust correlation to reduce the impact of outliers, and (iv) a new procedure for edge orientation based on the principle of Mendelian randomization (PMR) (Badsha and Fu, 2019 and Badsha et al., 2021). See details below. 
+This function is used to infer a causal network (or a causal graph) with directed and undirected edges from observational data. It implements the MRPC (PC with the principle of Mendelian randomization) algorithm described in Badsha and Fu (2019) and Badsha et al.(2021), and the implementation is based on the \link{pc} algorithm in the \code{pcalg} package. The MRPC algorithm contains four major updates over the \link{pc} algorithm: (i) incorporating a sequential testing method to control the False Discovery Rate (FDR), (ii) improved v-structure identification; (iii) allowing for calculation of robust correlation to reduce the impact of outliers, and (iv) a new procedure for edge orientation based on the principle of Mendelian randomization (PMR) (Badsha and Fu, 2019; Badsha et al., 2021). See details below. 
 
 }
 \usage{
 MRPC(data, suffStat, GV, FDR = 0.05, alpha = 0.05, indepTest, labels, p,
-    fixedGaps = NULL, fixedEdges = NULL,
-    NAdelete = TRUE, m.max = Inf,
-    u2pd = c("relaxed", "rand", "retry"),
-    skel.method = c("stable", "original", "stable.fast"),
-    conservative = FALSE,
-    maj.rule = FALSE, solve.confl = FALSE,
-    FDRcontrol = c("LOND", "ADDIS"), tau = 0.5, lambda = 0.25,
+    FDRcontrol = c("LOND", "ADDIS", "NONE"), tau = 0.5, lambda = 0.25,
     verbose = FALSE)
 }
 
@@ -29,13 +23,12 @@ Data matrix, where the rows are observations and the columns are features (i.e.,
 \item{suffStat}{A list of sufficient statistics. When the data is continuous or can be viewed as continuous, this list contains the correlation matrix of the data and the sample size, which are the necessary elements for the conditional independence tests in gaussCItest. When the data is discrete, this list contains the entire dataset.
 } 
 
-\item{GV}{The number of genetic variants (SNPs/indels/CNV/eQTL) in the input data matrix. For example, if the data has one SNPs/indels/CNV/eQTL, first column, then GV = 1, if 2 SNPs/indels/CNV/eQTL, 1st and 2nd Column, then GV = 2, if no GV then GV = 0, and so on.
+\item{GV}{The number of genetic variants (SNPs/indels/CNV/eQTLs) in the input data matrix. For example, if the data has one variant, which is in the first column, then GV = 1. If there are two variants, which are in the first and second Columns, then GV = 2. If there are no variants, then GV = 0.
 }
 
-\item{FDR}{
-Need to specify the desired level of the overall false discovery rate. 
+\item{FDR}{Need to specify the desired level of the overall false discovery rate. 
 }
-\item{alpha}{significance level (number in (0,1) for the individual tests.}
+\item{alpha}{A scalar in [0,1]. The type I error rate for each individual test.}
     
 \item{indepTest}{A \link{function} for testing conditional independence. It is used to test the conditional independence of x and y given S, called as indepTest(x, y, S, suffStat). Where, x and y are variables, and S is a vector, possibly empty, of variables. suffStat is a list, see the argument above. The return value of indepTest is the p-value of the test for conditional independence. The different indepTest is used for different data types, for example, Gaussian data = gaussCItest, Discrete data = disCItest and Binary data = binCItest. See help(gaussCItest)
 
@@ -48,29 +41,11 @@ Remember that need to specify the which indepTest would like for independence te
 
 \item{p}{(optional) The number of variables, or nodes. May be specified if the labels are not provided, in which case the labels are set to 1:p.}
 
-\item{fixedGaps}{(optional) A logical matrix of dimension p*p. If entry [x, y], [y, x], or both are TRUE, the edge x---y is removed before starting the algorithm. Therefore, this edge is guaranteed to be absent in the resulting graph.}
+\item{FDRcontrol}{A character string specifying whether online FDR control should be applied, and if so, what method to use. The two FDR control options are "LOND" (Javanmard and Montanari, 2015) or "ADDIS" (Tian and Ramdas, 2019). If "NONE" is specified, the type I error rate "alpha" will be used for each test.}
 
-\item{fixedEdges}{ (optional) A logical matrix of dimension p*p. If entry [x, y], [y, x], or both are TRUE, the edge x---y is never considered for removal. Therefore, this edge is guaranteed to be present in the resulting graph.}
+\item{tau}{(optional) A scalar between 0 and 1. This value is used to determine if a p-value will be considered for testing, when FDRcontrol="ADDIS". For example, if a p-value is greater than tau then it is discarded and no test will be performed.}
 
-\item{NAdelete}{(optional) If indepTest returns NA and this option is TRUE, the corresponding edge is deleted. If this option is FALSE, the edge is not deleted.}
-
-\item{m.max}{ (optional) Maximum size of the conditioning sets that are considered in the conditional independence tests.}
-
-\item{u2pd}{ (optional) Character string specifying the method for dealing with conflicting information.}
-
-\item{skel.method}{ (optional) Character string specifying method; the default, "stable" provides an order-independent skeleton.}
-
-\item{conservative}{(optional) Logical. Indicates if the conservative PC algorithm is used. In this case, only option u2pd = "relaxed" is supported. Note that the resulting object might not be extendable to a DAG. See details for more information.}
-
-\item{maj.rule}{(optional) Logical. Indicates that the triplets will be checked for ambiguity using a majority rule idea, which is less strict than the conservative PC algorithm. For more information, see details.}
-
-\item{solve.confl}{(optional) If TRUE, the orientation of the v-structures and the orientation rules work with lists for candidate sets and allow bi-directed edges to resolve conflicting edge orientations. In this case, only option u2pd = "relaxed" is supported. Note that the resulting object might not be a CPDAG because bi-directed edges might be present. See details for more information.}
-
-\item{FDRcontrol}{(optional) A character string specifying the method used for online FDR control. The two options are either LOND (Javanmard and Montanari, 2015) or ADDIS (Tian and Ramdas, 2019). If this is left blank a fixed significance level, alpha, will be used for each test.}
-
-\item{tau}{A number between 0 and 1. This value is used to determine if a p-value will be considered for testing. For example, if a p-value is greater than tau then it is discarded and no test will be performed.}
-
-\item{lambda}{A number between 0 and tau. This value is used to determine if a p-value is a candidate for rejection. For example, if a p-value is smaller than lambda then it can be rejected when testing the hypothesis (if the p-value is smaller than alphai).}
+\item{lambda}{(optional) A scalar between 0 and tau. This value is used to determine if a p-value is a candidate for rejection, when FDRcontrol="ADDIS". For example, if a p-value is smaller than lambda then it can be rejected when testing the hypothesis (if the p-value is smaller than alphai).}
 
 \item{verbose}{(optional) If TRUE, detailed output is provided. The default is FALSE which does not print output details.}
 
@@ -147,9 +122,9 @@ Md Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \references{
-1. Badsha MB and Fu AQ (2019). Learning causal biological networks with the principle of Mendelian randomization. Frontiers in Genetics, 10(460).
+1. Badsha MB and Fu AQ (2019). Learning causal biological networks with the principle of Mendelian randomization. Frontiers in Genetics, 10:460.
 
-2. Badsha MB, Martin EA and Fu AQ (2021). An R Package for Inference of Causal Graphs. Frontiers in Genetics, 10(651812).
+2. Badsha MB, Martin EA and Fu AQ (2021). MRPC: An R package for inference of causal graphs. Frontiers in Genetics, 10:651812.
 
 3. Badsha MB, Mollah MN, Jahan N and Kurata H (2013). Robust complementary hierarchical clustering for gene expression data analysis by beta-divergence. J Biosci Bioeng, 116(3): 397-407.
 
@@ -170,27 +145,25 @@ Md Bahadur Badsha (mbbadshar@gmail.com)
 \link{ModiSkeleton} for inferring a graph skeleton (i.e., an undirected graph); \link{EdgeOrientation} for edge orientation in the inferred graph skeleton; \link{SimulateData} for generating data under a topology.
 }
 \examples{
-\donttest{
+ \dontrun{
 # Load packages
-# We compare different simulated data across six methods: MRPC, 
-# PC in pcalg (Kalisch et al., 2012), and pc.stable, mmpc mmhc and hc in
-# bnlearn (Marco Scutari, 2010)
+
+# Compare six methods on simulated data:
+# MRPC, 
+# pc in pcalg (Kalisch et al., 2012), 
+# and pc.stable, mmpc mmhc and hc in bnlearn (Scutari, 2010)
 
 library(MRPC)     # MRPC
 library(pcalg)    # pc
 library(bnlearn)  # pc.stable, mmpc, mmhc and hc
 
-# Data pre-processing
-# The 1st column of the input matrix will be the genotype of the
-# expression quantitative trait loci (eQTL)/Copy number variation (CNV)
-# and the remaining columns are the gene expression data.
-
-# We used pre-assigned level alpha = 0.05 that ensures FDR and mFDR
-# will remain below 0.05.
-
-# Load predefined simulated data
-# Model 1
+####################################-->    
+# Load simulated data
+# Model 1 (mediation)
 Truth <- MRPCtruth$M1   # Truth for model 1
+
+# The 1st column of the data matrix is a genetic variant
+# and the remaining columns are gene expression nodes.
 data <- simu_data_M1    # load data for model 1
 n <- nrow (data)        # Number of rows
 V <- colnames(data)     # Column names
@@ -200,6 +173,7 @@ suffStat_C <- list(C = cor(data),
                    n = n)
 
 # Infer the graph by MRPC
+# using the LOND method for FDR control
 MRPC.fit <- MRPC(data,
                 suffStat = suffStat_C,
                 GV = 1,
@@ -209,14 +183,15 @@ MRPC.fit <- MRPC(data,
                 FDRcontrol = 'LOND',
                 verbose = FALSE)
 
-# Infer the graph by PC
+# Infer the graph by pc
 pc.fit <- pc(suffStat = suffStat_C,
              indepTest = gaussCItest,
              alpha = 0.05,
              labels = V,
              verbose = FALSE)
 
-# arcs not to be included from gene expression to genotype used in pc.stable, mmpc 
+# arcs (from gene expression to genotype) to be excluded 
+# in pc.stable and mmpc 
 bl <- data.frame (from = colnames (data)[-1], 
                   to = 'V1')
 
@@ -257,7 +232,40 @@ graphviz.plot(mmhc.fit,
     main = "(F) mmhc")
 graphviz.plot(hc.fit,
     main = "(G) hc")
-    
+####################################<--    
+
+
+####################################-->    
+# Use alpha, instead of FDR control
+# in MRPC
+
+# Model 1
+Truth <- MRPCtruth$M1   # Truth for model 1
+data <- simu_data_M1    # load data for model 1
+n <- nrow (data)        # Number of rows
+V <- colnames(data)     # Column names
+
+# Calculate Pearson correlation
+suffStat_C <- list(C = cor(data),
+                   n = n)
+
+# Infer the graph by MRPC
+# using the LOND method for FDR control
+MRPC.fit <- MRPC(data,
+                suffStat = suffStat_C,
+                GV = 1,
+                alpha = 0.01,
+                indepTest = 'gaussCItest',
+                labels = V,
+                FDRcontrol = 'NONE',
+                verbose = FALSE)
+                
+# The inferred adjacency matrix
+as(MRPC.fit@graph, "matrix")
+####################################<--    
+
+
+####################################-->    
 # Run MRPC on the complex data set with ADDIS as the FDR control method.
 data <- data_examples$complex$cont$withGV$data
 n <- nrow (data)        # Number of rows
@@ -286,31 +294,29 @@ plot(data_examples$complex$cont$withGV$graph,
 plot(MRPC.addis,
      main = 'Inferred graph')
     
-# Another option for plot of the results. First fig is the nodes
-# dendrogram with colored modules. Second fig is the plot of the graph
-# with color based on modules.
-# To idendify modules and complex graph (Suitable if you have many nodes)
+# Other graph visualizations 
 # Adjacency matrix from directed graph
-Adj_directed <- as(MRPC.fit@graph,
+Adj_directed <- as(MRPC.addis@graph,
                    "matrix")
 
-# Plot of dendrogram with modules colors of nodes
+# Plot of dendrogram with modules of different colors
 PlotDendrogramObj <- PlotDendrogram(Adj_directed,
-                                    minModuleSize = 2)
+                                    minModuleSize = 5)
                   
-# Visualization of inferred graph with modules colors
+# Visualization of inferred graph with module colors
 PlotGraphWithModulesObj <- PlotGraphWithModules(Adj_directed,
                                                 PlotDendrogramObj,
-                                                GV = 1,
+                                                GV = 14,
                                                 node.size = 8,
                                                 arrow.size = 5,
                                                 label.size = 3,
                                                 alpha = 1) 
 
-# Plot 
-plot(PlotGraphWithModulesObj) 
+plot(PlotGraphWithModulesObj)
+####################################<--    
 
 
+####################################-->    
 # Other models are available and may be called as follows:
 # Model 0
 # Truth <- MRPCtruth$M0
@@ -339,8 +345,10 @@ plot(PlotGraphWithModulesObj)
 # Model Layered
 # Truth <- MRPCtruth$Layered
 # data <- simu_data_layered
+####################################<--    
 
 
+####################################-->    
 # Discrete data with genetic variants
 data <- data_examples$simple$disc$withGV$data
 
@@ -351,9 +359,15 @@ V <- colnames (data) # Node labels
 suffStat <- list (dm = data, adaptDF = FALSE, n.min = 1000) 
 
 # Infer the graph by MRPC
+data.mrpc.disc.withGV <- MRPC (data, 
+                               suffStat = suffStat, 
+                               GV = 1, 
+                               FDR = 0.05, 
+                               indepTest = 'disCItest', 
+                               labels = V, 
+                               FDRcontrol = 'LOND', 
+                               verbose = FALSE)
 
-data.mrpc.disc.withGV <- MRPC (data, suffStat = suffStat, GV = 1, FDR = 0.05,
-indepTest = 'disCItest', labels = V, FDRcontrol = TRUE, verbose = FALSE)
 
 # Discrete data without genetic variants
 data <- data_examples$simple$disc$withoutGV$data
@@ -364,9 +378,14 @@ V <- colnames (data) # Node labels
 suffStat <- list (dm = data, adaptDF = FALSE)
 
 # Infer the graph by MRPC
-
-data.mrpc.disc.withoutGV <- MRPC (data, suffStat = suffStat, GV = 0, FDR = 0.05,
-indepTest = 'disCItest', labels = V, FDRcontrol = TRUE, verbose = FALSE)
+data.mrpc.disc.withoutGV <- MRPC (data, 
+                                  suffStat = suffStat, 
+                                  GV = 0, 
+                                  FDR = 0.05, 
+                                  indepTest = 'disCItest', 
+                                  labels = V, 
+                                  FDRcontrol = 'LOND', 
+                                  verbose = FALSE)
 
 # Plots of true and inferred graphs on discrete data
 par (mfrow = c (2,2))
@@ -374,6 +393,7 @@ plot (data_examples$simple$disc$withGV$graph, main = "truth")
 plot (data.mrpc.disc.withGV, main = "inferred")
 plot (data_examples$simple$disc$withoutGV$graph, main = "truth")
 plot (data.mrpc.disc.withoutGV, main = "inferred")
+####################################<--    
 
 }
-}
+    }

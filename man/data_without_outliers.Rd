@@ -2,7 +2,7 @@
 \alias{data_without_outliers}
 
 \title{
-Example data without outliers (noises)
+Example data without outliers
 }
 \description{
 The data contain two genotype nodes, V1 and V2, and three phenotype nodes, T1, T2 and T3. The code below compares the performance of \link{MRPC}, \link{pc} \link{pc.stable}, \link{mmpc}, \link{mmhc}, and \link{hc} on this data set.
@@ -18,7 +18,7 @@ Md Bahadur Badsha (mbbadshar@gmail.com)
 }
 
 \examples{
-\donttest{
+  \dontrun{
 # Load packages
 
 library(MRPC)     # MRPC
@@ -111,4 +111,4 @@ graphviz.plot (mmpc_withoutoutliers, main = "mmpc")
 graphviz.plot (mmhc_withoutoutliers, main = "mmhc")
 graphviz.plot (hc_withoutoutliers, main = "hc")
 }
-}
+  }

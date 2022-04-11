@@ -5,13 +5,13 @@
 Infer a graph skeleton (undirected graph)
 }
 \description{
-This function infers a graph skeleton (i.e., an undirected graph). It is based on the function \link{skeleton} from the \code{pcalg} package. Both functions perform marginal and conditional indpenendence tests. However, \code{ModiSkeleton} implements an online false discovery rate (FDR) control method in order to control the overall FDR, whereas \link{skeleton} controls only the type I error rate for each individual test. See details below.
+This function implements the MRPC algorithm in Badsha and Fu (2019) and Badsha et al. (2021) to infers a graph skeleton (i.e., an undirected graph). It is based on the function \link{skeleton} from the \code{pcalg} package (Kalisch et al., 2012). Both functions perform marginal and conditional indpenendence tests. However, \code{ModiSkeleton} implements an online false discovery rate (FDR) control method in order to control the overall FDR, whereas \link{skeleton} controls only the type I error rate for each individual test. See details below.
 }
 \usage{
 ModiSkeleton(data, suffStat, FDR, alpha, indepTest, labels, p,
              method = c("stable", "original", "stable.fast"),
              m.max = Inf, fixedGaps = NULL, fixedEdges = NULL,
-             NAdelete = TRUE, FDRcontrol = c("LOND", "ADDIS"),
+             NAdelete = TRUE, FDRcontrol = c("LOND", "ADDIS", "NONE"),
              tau, lambda, verbose = FALSE)
 }
 
@@ -53,7 +53,7 @@ Desired overall FDR level.
 
 \item{NAdelete}{(optional) If indepTest returns NA and this option is TRUE, the corresponding edge is deleted. If this option is FALSE, the edge is not deleted.}
 
-\item{FDRcontrol}{(optional) A character string specifying the method used for online FDR control. The two options are either LOND (Javanmard and Montanari, 2015) or ADDIS (Tian and Ramdas, 2019). If this is left blank a fixed significance level, alpha, will be used for each test.}
+\item{FDRcontrol}{A character string specifying whether online FDR control should be applied, and if so, what method to use. The two FDR control options are "LOND" (Javanmard and Montanari, 2015) or "ADDIS" (Tian and Ramdas, 2019). If "NONE" is specified, the type I error rate "alpha" will be used for each test.}
 
 \item{tau}{A number between 0 and 1. This value is used to determine if a p-value will be considered for testing. For example, if a p-value is greater than tau then it is discarded and no test will be performed.}
 
@@ -115,21 +115,15 @@ An object containing an estimate of the skeleton of the underlying DAG as follow
   }
 }
 \references{
-1. Badsha MB, Mollah MN, Jahan N and Kurata H (2013). Robust complementary hierarchical clustering for gene expression data analysis by beta-divergence. J Biosci Bioeng 116(3): 397-407.
+1. Badsha MB and Fu AQ (2019). Learning causal biological networks with the principle of Mendelian randomization. Frontiers in Genetics, 10:460.
 
-2. Benjamini Y and Hochberg Y (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing, J. R. Statist. Soc. B, B, 57, 289-300.
+2. Badsha MB, Martin EA and Fu AQ (2021). MRPC: An R package for inference of causal graphs. Frontiers in Genetics, 10:651812.
 
 3. Javanmard A and Montanari A (2015). On Online Control of False Discovery Rate. arXiv:150206197 [statME].
 
-4. Kalisch M and Buhlmann P (2007). Estimating High-Dimensional Directed Acyclic Graphs with the PC-Algorithm, Journal of Machine Learning Research, 8, 613-636.
+4. Kalisch M, Machler M, Colombo D, Maathuis MH and Buhlmann P (2012). Causal Inference Using Graphical Models with the R Package pcalg. Journal of Statistical Software, 47, 26.
 
-5. Scutari M (2010). Learning Bayesian Networks with the bnlearn R Package. Journal of Statistical Software, 35(3), 1-22.
-
-6. Spirtes P, Glymour C and Scheines R (2000). Causation, Prediction, and Search, 2nd edition. The MIT Press.
-
-7.Tsamardinos I, Brown LE and Aliferis CF (2006). The Max-Min Hill-Climbing Bayesian Network Structure Learning Algorithm. Machine Learning, 65 (1), 31-78.
-
-8. Tian J and Ramdas A (2019). ADDIS: an adaptive discarding algorithm for online FDR control with conservative nulls. In Advances in Neural Information Processing Systems (pp. 9388-9396).
+5. Tian J and Ramdas A (2019). ADDIS: an adaptive discarding algorithm for online FDR control with conservative nulls. In Advances in Neural Information Processing Systems (pp. 9388-9396).
 
 }
 \author{
@@ -140,19 +134,11 @@ Md Bahadur Badsha (mbbadshar@gmail.com)
  \link{MRPC}; \link{EdgeOrientation}; \link{SimulateData}.
 }
 \examples{
+\dontrun{
+# Model 1 (mediation)
 
-# Load predefined simulated data
-# Data pre-processing
-
-# The 1st column of the input matrix will be the
-# genotype of the expression quantitative trait loci
-# (eQTL)/Copy number variation (CNVs) and the remaining
-# columns are the gene expression data.
-# We used pre-assigned level alpha = 0.05 that ensures
-# FDR and mFDR remains below 0.05.
-
-# Model 1
-
+# The 1st column of the data matrix is a genetic variant
+# and the remaining columns are gene expression nodes.
 data <- simu_data_M1 # load data for model 1
 n <- nrow(data)      # Number of row
 V <- colnames(data)  # Column names
@@ -165,7 +151,6 @@ suffStat_C <- list(C = cor(data),
 Skel.fit <- ModiSkeleton(data, 
                          suffStat = suffStat_C,
                          FDR = 0.05, 
-                         alpha = 0.05, 
                          indepTest = 'gaussCItest',
                          labels = V, 
                          FDRcontrol = 'LOND', 
@@ -198,5 +183,6 @@ plot(Skel.fit@graph,
 # Model Layered
 # data <- simu_data_layered
 
+}
 }
 

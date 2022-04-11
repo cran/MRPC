@@ -1,7 +1,7 @@
 #This is the step 2 of MRPC to direction determination of the undirected edges.
 
 EdgeOrientation <- function (gInput, GV, suffStat, FDR, alpha, indepTest,
-                             FDRcontrol, tau = 0.5, lambda = 0.25,
+FDRcontrol = c("LOND", "ADDIS", "NONE"), tau = 0.5, lambda = 0.25,
                              verbose = FALSE) {
   
   g <- as(gInput@graph, "matrix") # g ia an adjacency from undirected graph (skleton)
@@ -177,7 +177,7 @@ EdgeOrientation <- function (gInput, GV, suffStat, FDR, alpha, indepTest,
           # Update the Alpha value with the current alphai value.
           Alpha <- alphai[[m]]
           
-        } else {
+        } else if (FDRcontrol == 'NONE') {
           
           Alpha <- alpha
           
@@ -344,7 +344,7 @@ EdgeOrientation <- function (gInput, GV, suffStat, FDR, alpha, indepTest,
                   # Update the Alpha value with the current alphai value.
                   Alpha <- alphai[[m]]
                   
-                } else {
+                } else if (FDRcontrol == 'NONE') {
                   
                   Alpha <- alpha
                   
@@ -505,7 +505,7 @@ EdgeOrientation <- function (gInput, GV, suffStat, FDR, alpha, indepTest,
                   # Update the Alpha value with the current alphai value.
                   Alpha <- alphai[[m]]
                   
-                } else {
+                } else if (FDRcontrol == 'NONE') {
                   
                   Alpha <- alpha
                   
@@ -679,7 +679,7 @@ EdgeOrientation <- function (gInput, GV, suffStat, FDR, alpha, indepTest,
                   # Update the Alpha value with the current alphai value.
                   Alpha <- alphai[[m]]
                   
-                } else {
+                } else if (FDRcontrol == 'NONE') {
                   
                   Alpha <- alpha
                   
@@ -838,7 +838,7 @@ EdgeOrientation <- function (gInput, GV, suffStat, FDR, alpha, indepTest,
                   # Update the Alpha value with the current alphai value.
                   Alpha <- alphai[[m]]
                   
-                } else {
+                } else if (FDRcontrol == 'NONE') {
                   
                   Alpha <- alpha
                   

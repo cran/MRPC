@@ -60,10 +60,15 @@ A list containing the graph objects as follows:
 Md Bahadur Badsha (mbbadshar@gmail.com)
 }
 
+\references{
+1. Badsha MB, Martin EA and Fu AQ (2021). MRPC: An R package for inference of causal graphs. Frontiers in Genetics, 10:651812. 
+}
+
 \seealso{
 \link{MRPC}.
 }
 \examples{
+\dontrun{
 # Adjacency matrix from directed example graph
 Adj_directed <- as(data_examples$complex$cont$withGV$graph,
                    "matrix")
@@ -71,5 +76,7 @@ Adj_directed <- as(data_examples$complex$cont$withGV$graph,
 # Plot of dendrogram with modules colors of nodes
 PlotDendrogramObj <- PlotDendrogram(Adj_directed,
                                     minModuleSize = 5)
+                                    
+}
 }
 
